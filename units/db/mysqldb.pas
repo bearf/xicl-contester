@@ -57,7 +57,6 @@ function  db_update_volume(contest: Integer;
 function db_get_id(alias : String; var id: integer): boolean;
 procedure save_all_solves;
 function db_get_server_time: TDateTime;
-function db_get_start_time(contestId: Integer): TDateTime;
 function db_get_cur_time(contestId: Integer): TDateTime;
 function db_get_time_left(contestId: Integer): TDateTime;
 function db_get_seconds_left(contestId: Integer): integer;
@@ -70,11 +69,14 @@ function db_get_task_id(Problem: String; Contest: Integer): Integer;
 implementation
 
 uses
-  Math;
+    Math,
+    uUtils;
 
 const
     max_submitfile_size : integer = 51000;
     cpMySQL = cp1251;
+    _DEFAULT_PENALTY_MINUTES: Integer = 20;
+    _DEFAULT_PENALTY_POINT: Integer = 1;
 
 var
     db       : String;
@@ -99,6 +101,16 @@ var
     rowbuf : PMYSQL_ROW;                 //MySQL row
     lenbuf : PMYSQL_LENGTHS;
 
+// *** function defs ***
+
+// contest / problem / penalty
+function getProblemAdded(contestId: Integer; problemId: String): TDateTime; forward;
+function getContestTimePenalty(contestId: Integer): Integer; forward;
+function getTimePenalty(contestId: Integer; problemId: String; solveTime: TDateTime; solveTry: Integer; solved: Boolean): int64; forward;
+function getContestPointPenalty(contestId: Integer): Integer;  forward;
+function getPointPenalty(contestId, solveTry: Integer): Integer;  forward;
+function getContestStartTime(contestId: Integer): TDateTime; forward;
+
 // *************  internal functions **************
 // Функция, выдающая сообщение об ощибке
 procedure db_error(s : string; ex : boolean);
@@ -111,8 +123,8 @@ begin
   if log = 0 then begin
     MessageBox(0, er, PChar(s), MB_OK or MB_SYSTEMMODAL or MB_ICONERROR);
   end else begin
-  	AddLog(LvlError, 'mysqldb: ' + s);
-    AddLog(LvlError, 'mysql  : ' + er);
+  	logger.error.print('mysqldb: ' + s);
+    logger.error.print('mysql  : ' + er);
   end;
   if not ex then
     exit;
@@ -146,6 +158,15 @@ begin
   end;
 
   result := true;
+end;
+
+// Temporary function to wrap String variable into "var" String variable
+// and pass it to qb_query function
+function query(query: String): Boolean;
+var
+    myQuery: String;
+begin
+    myQuery := query; result := db_query(myQuery)
 end;
 
 function db_use(var query : string) : boolean;
@@ -818,7 +839,7 @@ end;
 
 //обновить информацию в таблице table_id (dbTask,dbSubmit,dbUser)
 //где id=field_id, установить поля по req
-function db_set (table_id, field_id: integer; req : TRequest; var info): boolean; 
+function db_set (table_id, field_id: integer; req : TRequest; var info): boolean;
 var
     q         : string;
     values    : string;
@@ -833,21 +854,18 @@ var
       result := '0'
   end;
 
-  function getPenalty: String;
-  var
-    penalty: Integer;
-    cs: TdateTime;
-  begin
-    cs := db_get_start_time(TSubmitInfo(info).contest);
-
-    penalty := secondsBetween(cs, TSubmitInfo(info).stime);
-    penalty := penalty + (TSubmitInfo(info).stry-1) * 20 * 60;
-
-    if TSubmitInfo(info).result.result <> 0 then
-      result := '0'
-    else
-      result := intToStr(penalty)
-  end;
+    function getTimePenaltyLocal: String;
+    begin
+        result := itos(
+            getTimePenalty(
+                    TSubmitInfo(info).contest
+                ,   TSubmitInfo(info).problem
+                ,   TSubmitInfo(info).stime
+                ,   TSubmitInfo(info).stry
+                ,   TSubmitInfo(info).result.result = 0
+            ) // getPenalty
+        ) // result
+    end;
 
   function escape(v : string) : string;
   var t : PChar;
@@ -919,7 +937,7 @@ begin
           append('TotalTime', IntToStr(result.time));
           append('TotalMemory', IntToStr(result.mem));
           append('isTaskSolved', getIsTaskSolved);
-          append('penalty', getPenalty);
+          append('penalty', getTimePenaltyLocal);
           ConvertStr(dbcp, cpMySQL, result.msg, t);
           append('Message', escape(t));
         end;
@@ -1080,44 +1098,105 @@ begin
   Result := True
 end;
 
+function getProblemAdded(contestId: Integer; problemId: String): TDateTime;
+var
+    problemAddTime: String;
+begin
+    if not query('SELECT added FROM Volume WHERE ContestID=' + itos(contestId) + ' and problemId="' + problemId + '"') then begin
+        raise Exception.Create('Unable to get problem add time for contest with id=' + itos(contestId) + ' and problem with id=' + problemId);
+    end;
+
+    rowbuf := mysql_fetch_row(recbuf); if (rowbuf = nil) then begin
+        raise Exception.Create('Problem with id=' + problemId + ' not found in contest with id=' + itos(contestId));
+    end;
+
+    problemAddTime := rowbuf[0];
+
+    mysql_free_result(recbuf);
+
+    if (nulldt() = problemAddTime) then begin
+        result := getContestStartTime(contestId);
+    end else begin
+        result := stod(problemAddTime)
+    end;
+end;
+
+function getContestTimePenalty(contestId: Integer): Integer;
+begin
+    if not query('SELECT timePenalty FROM Cntest WHERE ContestID=' + itos(contestId)) then begin
+        raise Exception.Create('Unable to get default penalty minutes value for contest with id=' + itos(contestId));
+    end;
+
+    rowbuf := mysql_fetch_row(recbuf); if (rowbuf = nil) then begin
+        raise Exception.Create('Contest with id=' + itos(contestId) + ' not found');
+    end;
+
+    result := stoi(rowbuf[0], _DEFAULT_PENALTY_MINUTES);
+
+    mysql_free_result(recbuf);
+end;
+
+function getTimePenalty(contestId: Integer; problemId: String; solveTime: TDateTime; solveTry: Integer; solved: Boolean): int64;
+begin
+    result := 0;
+    if solved then begin
+        result := SecondsBetween(getProblemAdded(contestId, problemId), solveTime);
+        result := result + (solveTry - 1) * getContestTimePenalty(contestId) * 60;
+    end;
+end;
+
+function getContestPointPenalty(contestId: Integer): Integer;
+begin
+    if not query('SELECT pointPenalty FROM Cntest WHERE ContestID=' + itos(contestId)) then begin
+        raise Exception.Create('Unable to get default penalty point value for contest with id=' + itos(contestId));
+    end;
+
+    rowbuf := mysql_fetch_row(recbuf); if (rowbuf = nil) then begin
+        raise Exception.Create('Contest with id=' + itos(contestId) + ' not found');
+    end;
+
+    result := stoi(rowbuf[0], _DEFAULT_PENALTY_POINT);
+
+    mysql_free_result(recbuf);
+end;
+
+function getPointPenalty(contestId, solveTry: Integer): Integer;
+begin
+    if 1 >= solveTry then begin
+        result := 0;
+    end else begin
+        result := (solveTry - 1) * getContestPointPenalty(contestId);
+    end
+end;
+
 procedure db_update_monitor(user, contest, stry, solved, pts: integer; problem: String; stime: TDateTime);
 var q: string;
     mstime: integer;
-    fs:     TFormatSettings;
     pen:    Int64;
-    cs:     TDateTime;
     RealPts:Integer;
+    rowFound:Boolean;
+    rowPts: Integer;
+    rowSolved: Boolean;
 begin
     if not ping then exit;
 
-    GetLocaleFormatSettings(0, fs);
-    fs.DateSeparator := '-';
-    fs.LongDateFormat := 'yyyy-mm-dd';
-    fs.ShortDateFormat := 'yyyy-mm-dd';
-
-    q := 'SELECT Start FROM Cntest WHERE ContestID='+IntToStr(contest);
-    if not db_query(q) then exit;
-    rowbuf := mysql_fetch_row(recbuf);
-    cs := StrToDateTime(rowbuf[0], fs);
-    mysql_free_result(recbuf);
+    pen := getTimePenalty(contest, problem, stime, stry, solved=1);
 
     q := 'SELECT Solved, Penalty, MaxPts FROM Monitor WHERE UserID=' + IntToStr(user) + ' AND ProblemID="' + problem + '" AND ContestID=' + IntToStr(contest);
     if not db_query(q) then exit;
+    rowbuf := mysql_fetch_row(recbuf); rowFound := rowbuf <> nil;
+    if (rowFound) then begin
+      rowPts := StrToIntDef(rowbuf[2], 0);
+      rowSolved := rowbuf[0] <> '1';
+    end;
+    mysql_free_result(recbuf);
 
-    if solved=1 then begin
-      pen := SecondsBetween(cs, stime);
-      pen := pen + (stry-1)*20*60;
-    end
-    else
-      pen := 0;
-
-    rowbuf := mysql_fetch_row(recbuf);
-    if rowbuf <> nil then begin
-      Pts := max(Pts, StrToIntDef(rowbuf[2], 0));
-      RealPts := max(Pts + 1 - stry, 0);
+    if rowFound then begin
+      Pts := max(Pts, rowPts);
+      RealPts := max(Pts - getPointPenalty(contest, stry), 0);
 //      pen := pen + StrToIntDef(rowbuf[1], 0);
 
-      if rowbuf[0]<>'1' then begin
+      if rowSolved then begin
         if solved=1
           then
             q := 'UPDATE ' +
@@ -1126,7 +1205,7 @@ begin
                     'Attempt='+IntToStr(stry)+', ' +
                     'Solved=1, ' +
                     'Penalty='+IntToStr(pen)+', ' +
-                    'Date="'+DateTimeToStr(stime, fs) +'", ' +
+                    'Date="'+DateTimeToStr(stime, localeFS()) +'", ' +
                     'MaxPts='+IntToStr(Pts)+ ', '+
                     'RealPts='+IntToStr(RealPts)+ ' '+
                  'WHERE ' +
@@ -1174,7 +1253,7 @@ begin
 
       if solved=1 then
         q := q +
-              '"'+DateTimeToStr(stime, fs) +'", ';
+              '"'+DateTimeToStr(stime, localeFS()) +'", ';
 
       q := q + 
               IntToStr(pen)+','+
@@ -1182,8 +1261,6 @@ begin
               IntToStr(Pts) + ')';
       db_insert(q);
     end;
-
-    mysql_free_result(recbuf);
 end;
 
 // *************  compatibility functions **************
@@ -1325,30 +1402,30 @@ begin
   mysql_free_result (recbuf);
 end;
 
-function db_get_start_time(contestId: Integer): TDateTime;
-var
-	q: String;
+function getContestStartTime(contestId: Integer): TDateTime;
 begin
-  result := 0;
+    result := 0;
 
-  if not ping then exit;
+    if not ping then exit;
 
-  q := 'SELECT start from cntest where contestId=' + intToStr(contestId);
+    if not query('SELECT start from cntest where contestId=' + itos(contestId)) then begin
+        raise Exception.Create('Unable to get start time contest with id=' + itos(contestId));
+    end;
 
-  if not db_query(q) then exit;
+    rowbuf := mysql_fetch_row(recbuf);
 
-  rowbuf := mysql_fetch_row(recbuf);
-  if rowbuf = nil then
-    result := 0
-  else
-    result := StrToDateTimeS(rowbuf[0]);
+    if rowbuf = nil then begin
+        raise Exception.Create('Contest with id=' + itos(contestId) + ' not found');
+    end;
 
-  mysql_free_result(recbuf);
+    result := StrToDateTime(rowbuf[0], localeFS());
+
+    mysql_free_result(recbuf);
 end;
 
 function db_get_cur_time(contestId: Integer): TDateTime;
 begin
-  result := db_get_server_time - db_get_start_time(contestId)
+  result := db_get_server_time - getContestStartTime(contestId)
 end;
 
 function db_get_time_left(contestId: Integer): TDateTime;
@@ -1391,7 +1468,7 @@ end;
 
 function db_get_contest_length(contestId: Integer): TDateTime;
 begin
-  result := db_get_finish_time(contestId) - db_get_start_time(contestId)
+  result := db_get_finish_time(contestId) - getContestStartTime(contestId)
 end;
 
 function db_get_froze_time_sec(contestId: Integer): Integer;
