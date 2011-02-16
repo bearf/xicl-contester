@@ -1,0 +1,74 @@
+
+
+
+2011-02-09 16:33:10 [FATAL]  Directory with tests not exists
+
+
+2011-02-09 16:33:29 [FATAL]  Directory with tests not exists
+
+
+
+
+
+
+2011-02-09 18:17:35 [FATAL]  Testlib compatible checker? I think not.
+
+
+
+
+
+
+
+
+2011-02-09 18:32:30 [FATAL]  cb async
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2011-02-09 19:27:20 [FATAL]  cb async
+
+
+2011-02-09 19:30:28 [FATAL]  cb async
+
+
+2011-02-10 15:45:29 [ERROR]  cant delete dir c:\contest\work\tmp4\
+
+
+2011-02-10 18:31:36 [FATAL]  cb async
+
+
+
+
+
+
+
+
+2011-02-13 18:48:08 [ERROR]  cant delete dir c:\contest\work\tmp1\
+
+
+
+
+
+
+2011-02-16 11:05:57 [ERROR]  cant delete dir c:\contest\work\tmp2\
+
+
+
+
+
+
+
+
+2011-02-16 17:48:07 [ERROR]  mysqldb: Could not connect to MySQL server
+2011-02-16 17:48:07 [ERROR]  mysql  : Access denied for user 'contest'@'localhost' (using password: YES)
+
