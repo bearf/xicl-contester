@@ -11,12 +11,11 @@ var
 
 implementation
 
-var fn: string;
-
 initialization
     MainReg := TRegistryINIFile.Create('\Software\Contest');
-	fn := GetCurrentDir + '\contest.inf';
-	MainConfig := TIniFile.Create(fn);
+	MainConfig := TIniFile.Create(GetCurrentDir()
+        +   '\..\config\contest.inf'
+    );
 finalization
 	MainConfig.free;
     MainReg.Free;

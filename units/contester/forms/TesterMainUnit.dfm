@@ -1,8 +1,8 @@
 object TesterMainForm: TTesterMainForm
   Left = 333
   Top = 147
-  Width = 619
-  Height = 510
+  Width = 523
+  Height = 255
   Caption = #1058#1077#1089#1090#1080#1088#1091#1102#1097#1072#1103' '#1089#1080#1089#1090#1077#1084#1072
   Color = clBtnFace
   Constraints.MinHeight = 255
@@ -19,74 +19,13 @@ object TesterMainForm: TTesterMainForm
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
-  object RichEdit: TMemo
-    Left = 0
-    Top = 0
-    Width = 504
-    Height = 437
-    TabStop = False
-    Align = alClient
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Courier New'
-    Font.Style = []
-    ParentFont = False
-    ReadOnly = True
-    ScrollBars = ssVertical
-    TabOrder = 0
-  end
-  object Panel1: TPanel
-    Left = 504
-    Top = 0
-    Width = 107
-    Height = 437
-    Align = alRight
-    BevelInner = bvLowered
-    TabOrder = 1
-    Visible = False
-    object TesterBitBtn: TBitBtn
-      Left = 16
-      Top = 16
-      Width = 75
-      Height = 25
-      Caption = #1057#1090#1072#1088#1090
-      TabOrder = 0
-      OnClick = TesterBitBtnClick
-    end
-    object ClearBitBtn: TBitBtn
-      Left = 16
-      Top = 48
-      Width = 75
-      Height = 25
-      Caption = #1054#1095#1080#1089#1090#1080#1090#1100
-      TabOrder = 1
-      OnClick = ClearBitBtnClick
-    end
-    object ExitBitBtn: TBitBtn
-      Left = 16
-      Top = 80
-      Width = 75
-      Height = 25
-      Caption = #1042#1099#1093#1086#1076
-      TabOrder = 2
-      OnClick = ExitBitBtnClick
-    end
-  end
-  object StatusBar1: TStatusBar
-    Left = 0
-    Top = 437
-    Width = 611
-    Height = 19
-    Panels = <>
-  end
   object ApplicationEvents: TApplicationEvents
-    Left = 32
-    Top = 16
+    Left = 8
+    Top = 8
   end
   object MainMenu: TMainMenu
-    Left = 32
-    Top = 72
+    Left = 72
+    Top = 8
     object N11: TMenuItem
       Caption = '&'#1058#1091#1088#1085#1080#1088
       object StartTournamentMenu: TMenuItem
@@ -131,21 +70,6 @@ object TesterMainForm: TTesterMainForm
         OnClick = N15Click
       end
     end
-    object N1: TMenuItem
-      Caption = '&'#1069#1082#1088#1072#1085
-      object N2: TMenuItem
-        Caption = '&'#1054#1095#1080#1089#1090#1080#1090#1100
-        OnClick = ClearBitBtnClick
-      end
-      object N3: TMenuItem
-        Caption = '&'#1064#1088#1080#1092#1090'...'
-        OnClick = N3Click
-      end
-      object N4: TMenuItem
-        Caption = '&'#1060#1086#1085'...'
-        OnClick = N4Click
-      end
-    end
     object N6: TMenuItem
       Caption = #1041#1044
       Visible = False
@@ -170,22 +94,9 @@ object TesterMainForm: TTesterMainForm
       OnClick = ExitBitBtnClick
     end
   end
-  object FontDialog: TFontDialog
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    Left = 32
-    Top = 128
-  end
-  object ColorDialog: TColorDialog
-    Left = 32
-    Top = 176
-  end
   object Timer1: TTimer
     OnTimer = Timer1Timer
-    Left = 32
-    Top = 240
+    Left = 40
+    Top = 8
   end
 end

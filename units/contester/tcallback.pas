@@ -130,7 +130,7 @@ procedure UnregCB(cb: TCBFunc);
 // то удал€ютс€ все функции
   		if (CBListLast = nil) or (@TCBFunc(CBListLast^.cb) <> @TCBFunc(cb)) then begin
    			UnregAllCB;
-   			FatalError('cb async');
+   			fatal('cb async');
   		end;
 // ”далить последний элемент списка
   		x := CBListLast;
@@ -160,7 +160,7 @@ initialization
 finalization
  	if CBListFirst <> nil then begin
   		UnregAllCB;
-  		FatalError('cb async');
+  		fatal('cb async');
  	end else
   		UnregAllCB;
 end.
