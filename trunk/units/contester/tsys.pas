@@ -21,7 +21,7 @@ interface
 
 implementation
 
-	uses  tFiles, db, tLog, tCompile;
+	uses  tFiles, udb, tLog, tCompile;
 
 	const
 		CheckExeFile = '__check.exe';
@@ -49,6 +49,7 @@ function TestTest(const WorkDir, AppName: string; DosFlag: Boolean; const timeMu
 			assign(tx, WorkDir + CheckResultFile);
 			desc := '';
 			comm := '';
+      resc := 999;
 			reset(tx);
 			while not seekeof(tx) do begin
 				readln(tx, tmp);
@@ -67,6 +68,7 @@ function TestTest(const WorkDir, AppName: string; DosFlag: Boolean; const timeMu
 					if (p = '.Result name (optional)') or (p = '.Result Description') then desc := v;
 					if (p = '.Check Comments') or (p = '.Check Comments') then comm := v;
 				end else begin
+          result:=true;desc:='';comm:='';
 					close(tx);
 					exit;
 				end;
@@ -212,9 +214,15 @@ function TestTest(const WorkDir, AppName: string; DosFlag: Boolean; const timeMu
 				TestResult.msg := 'invalid checker exit code';
 				exit;
 			end;
-			if not (FileExists(WorkDir + CheckResultFile) and (res = 0) and AnalyseCheckOut) then
-				AddLog(LvlError, 'Testlib compatible checker? I think not.')
-			else begin
+			if not (FileExists(WorkDir + CheckResultFile) and (res in [_OK, _WA, _PE]) and AnalyseCheckOut) then
+				fatal('Testlib compatible checker? I think not.')
+      else if (res in [_WA, _PE]) then begin
+        TestResult.msg := 'res in [_WA, _PE]';
+        ;//
+			end else if resc = 999 then begin
+        TestResult.msg := 'resc==999';
+        res := _OK;
+      end else begin
 				TestResult.msg := desc + ', ' + comm;
 				res := resc;
 			end;
@@ -230,7 +238,6 @@ function TestTask(const WorkDir, AppName: string; DosFlag: Boolean; const timeMu
 		isObligate: boolean;
 		ObligateCount: integer;
 		ec: integer;
-		app: string;
 		TestResult: TTestResult;
 		brcount: integer;
 		flcount: integer;
@@ -247,7 +254,6 @@ function TestTask(const WorkDir, AppName: string; DosFlag: Boolean; const timeMu
 		msg := '';
                 TaskResult.inf := 0;
 
-		app := WorkDir + AppName;
 		brcount := 0;
    		flcount := 0;
 
@@ -267,7 +273,7 @@ function TestTask(const WorkDir, AppName: string; DosFlag: Boolean; const timeMu
    		end;
 
    		for i := 1 to TaskInfo.TestCount do begin
-        ec := AllCB(CB_TEST_START, _submit, i, integer(PChar(App)));
+        ec := AllCB(CB_TEST_START, _submit, i, integer(PChar(AppName)));
 
     		TestResult.msg    := '';
     		TestResult.Point  := 0;
@@ -364,7 +370,7 @@ function TestSubmit(var SubmitInfo: TSubmitInfo):integer;
 
       TaskID := GetTaskID(SubmitInfo);
    		if not GetInfo(dbTask, TaskID, TaskInfo) then begin
-    		AddLog(LvlError, 'Task ' + IntToStr(TaskID) + ' not found');
+    		fatal('Task ' + IntToStr(TaskID) + ' not found');
     		SubmitInfo.result.Result := _FL;
     		Result := _FL;
     		SubmitInfo.result.msg := 'cant get TaskInfo';
@@ -406,9 +412,9 @@ function TestSubmit(var SubmitInfo: TSubmitInfo):integer;
    		_submit := SubmitInfo.id;
    		_submitinfo := @SubmitInfo;
       if (SubmitInfo.bat = 'java.bat') then
-     		ec := TestTask(TmpDir, 'java -cp . Solution', SubmitInfo.DOS, SubmitInfo.TimeMul, SubmitInfo.MemoryBuf, TaskInfo, TaskResult)
+     		ec := TestTask(TmpDir, 'java -cp . -Xmx256M -DONLINE_JUDGE=true -Duser.language=en -Duser.region=US -Duser.variant=US Solution', SubmitInfo.DOS, SubmitInfo.TimeMul, SubmitInfo.MemoryBuf, TaskInfo, TaskResult)
       else
-     		ec := TestTask(TmpDir, TmpDir+SolveExeFile, SubmitInfo.DOS, SubmitInfo.TimeMul, SubmitInfo.MemoryBuf, TaskInfo, TaskResult);
+     		ec := TestTask(TmpDir, TmpDir + SolveExeFile, SubmitInfo.DOS, SubmitInfo.TimeMul, SubmitInfo.MemoryBuf, TaskInfo, TaskResult);
    		_submit := -1;
    		_submitinfo := nil;
 

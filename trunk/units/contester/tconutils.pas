@@ -6,7 +6,7 @@ interface
 
 uses SysUtils, tTypes, ComCtrls, Graphics, tLog;
 
-const
+{const
  	TrackLength = 12;
  	ScreenWidth = 80;
 var
@@ -20,13 +20,13 @@ var
 	procedure cleartailf();//заполняет пробелами остаток строки
 	                     //и переходит на начало строки
 
-	procedure OutText(text:string);
+	procedure OutText(text:string);}
 
 	function Res2Col(Res:integer):char; //цвет результата
 
-    procedure PrintLN(WriteStr: string);
+{    procedure PrintLN(WriteStr: string);
     procedure Print(WriteStr: string);
-    procedure ClearScreen();
+    procedure ClearScreen();}
 
 implementation
 
@@ -50,7 +50,7 @@ const
 
  	flipcount = 4;
         flip: array[0..flipcount-1] of char = ('-','/','|','\');
-var
+{var
     flipidx:integer;
 
     procedure ClearScreen();
@@ -149,9 +149,9 @@ var
                     	    end;
             	    end;
                 PosNum := 1;
- 	    end;
+ 	    end;      }
 
-	function Res2Col(Res: integer): char;
+	{function Res2Col(Res: integer): char;
  	    begin
   		case Res of
    				_OK: Result := 'A';
@@ -168,9 +168,9 @@ var
    				_NO: Result := 'F';
   				else Result := 'F';
                 end;
- 	    end;
+ 	    end; }
 
-    procedure OutText(Text: string);
+    {procedure OutText(Text: string);
  	var i, c: integer;
             buff: string;
  	begin
@@ -238,8 +238,8 @@ var
    			end;
 //		  TesterMainForm.RichEdit.Refresh;
 		TesterMainForm.Repaint;
- 	    end;
+ 	    end; }
 
 begin
- 	flipidx := 0;
+// 	flipidx := 0;
 end.

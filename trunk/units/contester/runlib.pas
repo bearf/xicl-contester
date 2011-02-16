@@ -353,8 +353,8 @@ DWORD main(int argc, char *argv[])
     err := SysErrorMessage(GetLastError());
 
 		if Not Er Then Begin
-			AddLog(LvlError, 'cant execute ' + AppName);
-                        AddLog(LvlError, err);
+			logger.error.print('cant execute ' + AppName);
+            logger.error.print(err);
 			RunAppNT := _FL;
 			Exit;
 		End;
@@ -447,7 +447,7 @@ DWORD main(int argc, char *argv[])
 		FExitCode := exCode;
 
 		if Not Er Then Begin
-			AddLog(LvlError, 'cant get exitcode');
+			logger.error.print('cant get exitcode');
 			RunAppNT := _FL;
 			Exit;
 		End;
@@ -455,7 +455,7 @@ DWORD main(int argc, char *argv[])
 		if {((AppType = CB_RUN_TYPE_SOLUTION) and Bug) or
        (exCode <> 0)}
 
-       (exCode <> 0) Then Begin
+       (AppType <> CB_RUN_TYPE_CHECKER) and (exCode <> 0) Then Begin
 			RunAppNT := _RE;
 			Exit;
 		End;

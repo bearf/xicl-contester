@@ -96,7 +96,7 @@ function DelDir(dir: string): boolean;
   	begin
    		Result := true;
    		if not RemoveDir(dir) then begin
-    		AddLog(LvlError, 'cant delete dir ' + dir);
+            logger.error.print('cant delete dir ' + dir);
     		Result := false;
    		end;
   	end;
@@ -127,7 +127,7 @@ function DelFile(Name : string): boolean;
 	begin
   		Result := true;
   		if FileExists(name) and (not SysUtils.DeleteFile(Name)) then begin
-   			AddLog(LvlError, 'cant delete ' + Name);
+   			logger.error.print('cant delete ' + Name);
    			Result := false;
   		end;
  	end;
@@ -137,7 +137,7 @@ function DelFile(Name : PChar): boolean;
  	begin
   		Result := true;
   		if FileExists(name) and (not SysUtils.DeleteFile(strpas(Name))) then begin
-   			AddLog(LvlError, 'cant delete ' + strpas(Name));
+   			logger.error.print('cant delete ' + strpas(Name));
    			Result := false;
   		end;
  	end;

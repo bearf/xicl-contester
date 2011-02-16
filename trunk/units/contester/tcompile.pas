@@ -13,7 +13,10 @@ interface
 
 implementation
 
-uses tFiles, runlib, tLog,
+uses
+    tFiles, runlib, tLog,
+    tConfig,
+
 
   Forms;
 
@@ -29,7 +32,7 @@ begin
         workdir := ExtractFileDir(workdir);
 
         ec := RunApp('',
-                     workdir + '\' + Bat + ' ' +
+                     MainConfig.ReadString('compile', 'compile_batch_dir', workdir + '\') + Bat + ' ' +
                      SrcDir + ' ' +
                      SrcName + ' ' +
                      OutDir + ' ' +

@@ -4,25 +4,13 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, AppEvnts, Buttons, WinSock, ttypes, tConfig, tConUtils,
+  Dialogs, StdCtrls, ComCtrls, AppEvnts, Buttons, WinSock, ttypes, tConfig, 
   ExtCtrls, Menus, TesterThreadUnit, mysqldb;
 
 type
   TTesterMainForm = class(TForm)
     ApplicationEvents: TApplicationEvents;
-    RichEdit: TMemo;
     MainMenu: TMainMenu;
-    N1: TMenuItem;
-    Panel1: TPanel;
-    TesterBitBtn: TBitBtn;
-    ClearBitBtn: TBitBtn;
-    StatusBar1: TStatusBar;
-    N2: TMenuItem;
-    N3: TMenuItem;
-    FontDialog: TFontDialog;
-    N4: TMenuItem;
-    ColorDialog: TColorDialog;
-    ExitBitBtn: TBitBtn;
     N5: TMenuItem;
     N6: TMenuItem;
     N7: TMenuItem;
@@ -43,13 +31,9 @@ type
     Timer1: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure TesterBitBtnClick(Sender: TObject);
-    procedure ClearBitBtnClick(Sender: TObject);
-    procedure Err(msg: String);
     function CurrText: TTextAttributes;
     procedure EnableControls();
     procedure DisableControls();
-    procedure N3Click(Sender: TObject);
-    procedure N4Click(Sender: TObject);
     procedure ExitBitBtnClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure StartTournamentMenuClick(Sender: TObject);
@@ -84,7 +68,7 @@ Var
 
 implementation
 
-uses db, tCallBack, tConVis, tlog, tsys, tTimes{,
+uses udb, tCallBack, tConVis, tlog, tsys, tTimes{,
   UserAddFormUnit, TaskAddFormUnit};
 
 {$R *.dfm}
@@ -143,36 +127,9 @@ begin
 //  else Result := RichEdit.DefAttributes;
 end;
 
-// Вывод сообщения об ошибке
-procedure TTesterMainForm.Err(msg: String);
-Begin
-    AddLog(LvlError, msg);
-End;
-
 procedure TTesterMainForm.TesterBitBtnClick(Sender: TObject);
 begin
     TesterStarted := not TesterStarted;
-end;
-
-procedure TTesterMainForm.ClearBitBtnClick(Sender: TObject);
-begin
-    RichEdit.Lines.Clear;
-    RichEdit.Lines.Add('');
-    tConUtils.ClearScreen();
-end;
-
-procedure TTesterMainForm.N3Click(Sender: TObject);
-begin
-    FontDialog.Font := RichEdit.Font;
-    if FontDialog.Execute then
-    	RichEdit.Font := FontDialog.Font;
-end;
-
-procedure TTesterMainForm.N4Click(Sender: TObject);
-begin
-    ColorDialog.Color := RichEdit.Color;
-    if ColorDialog.Execute then
-    	RichEdit.Color := ColorDialog.Color;
 end;
 
 procedure TTesterMainForm.ExitBitBtnClick(Sender: TObject);
