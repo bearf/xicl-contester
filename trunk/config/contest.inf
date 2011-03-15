@@ -1,21 +1,20 @@
 [tsys]
-workdir=c:\contest\work\
+workdir=.\..\work\
 
 [compile]
-compile_batch_dir=c:\contest\compile\
+compile_batch_dir=.\..\compile\
 
 [db]
-testsdir=c:\contest\tests\
+testsdir=.\..\..\tests\
 dbsolvefile=solve.src
 dbname=contest
 dbhost=localhost	
-dbuser=contest
-dbpass=contest2010
+dbuser=root
+dbpass=
 
 [log]
-logdir=c:\contest\log\
+logdir=.\..\log\
 logfile=contester.log
-testfile=contester.test
 
 [DataBase]
 db_name=contest

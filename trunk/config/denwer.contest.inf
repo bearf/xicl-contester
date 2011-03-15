@@ -15,7 +15,6 @@ dbpass=
 [log]
 logdir=.\..\log\
 logfile=contester.log
-testfile=contester.test
 
 [DataBase]
 db_name=contest
