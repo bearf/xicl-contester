@@ -3,60 +3,75 @@ unit tlog;
 
 interface
 
+uses
+        classes
+    ,   graphics;
+
 const
-        LvlDebug = 'DEBUG';
-        LvlError = 'ERROR';
-        LvlFatal = 'FATAL';
+        BUFFER_SIZE         = 10000;
 
 type
-    TWriterMode = (wmFatal, wmError, wmWarn, wmDebug, wmInfo, wmTest);
+    TLoggerMode = (wmAll, wmNoTest, wmFatal, wmError, wmWarn, wmDebug, wmInfo, wmTest);
 
-    TWriter = class
+    TLoggerCallback = procedure;
+
+    TBuffer = class
     private
-        mode:       TWriterMode;
-        dir:        String;
-        fileName:   String;
-        endline:    Boolean;
-        handle:     textFile;
+        buffer:     array[0..BUFFER_SIZE-1] of String;
+        subscribers:array of TLoggerCallback;
+        pb, pe,
+        size :      Integer;
+        capacity:   Integer;
 
-        function break: TWriter;
-        function section: String;
-        function now: String;
+        function    get(index: Integer): String;
     public
-        constructor create(dir, fileName: String);
+        constructor create;
+        procedure   push(message: String);
+        function    full: TBuffer;
+        function    last(capacity: Integer): TBuffer;
+        procedure   subscribe(callback: TLoggerCallback);
 
-        function error: TWriter;
-        function test: TWriter;
-        function fatal: TWriter;
-        function info: TWriter;
-        function debug: TWriter;
-        function warn: TWriter;
-
-        function separate: TWriter;
-        function print(message: String): TWriter;
-        function append(message: String): TWriter;
+        property    strings[index: integer]: String read get; default;
+        function    count: Integer;
     end;
 
     TLogger = class
     private
-        logWriter:  TWriter;
-        testWriter: TWriter;
-    public
-        constructor create(dir, logFile, testFile: String);
+        _mode:      TLoggerMode;
+        _dir:       String;
+        _fileName:  String;
+        _endline:   Boolean;
+        _handle:    textFile;
+        _buffer:    array[TLoggerMode] of TBuffer;
 
-        function error: TWriter;
-        function test: TWriter;
-        function fatal: TWriter;
-        function info: TWriter;
-        function debug: TWriter;
-        function warn: TWriter;
+        function    break: TLogger;
+        function    section: String;
+        function    now: String;
+        function    append(message: String): TLogger;
+    public
+        constructor create(dir, fileName: String);
+
+        function    error: TLogger;
+        function    test: TLogger;
+        function    fatal: TLogger;
+        function    info: TLogger;
+        function    debug: TLogger;
+        function    warn: TLogger;
+
+        function    print(message: String): TLogger;
+
+        procedure   subscribe(mode: TLoggerMode; callback: TLoggerCallback);
+        function    filter(mode: TLoggerMode): TBuffer;
+
+        function    color(message: String): TColor;
+        function    mode(message: String): TLoggerMode;
     end;
 
 var
+    logger: TLogger;
 	mainlog: text;
 	logdir: string;
 	logfile: string;
-    logger: TLogger;
 
     procedure fatal(message: String);
 
@@ -65,9 +80,22 @@ implementation
 uses
         uUtils
     ,   sysutils
+    ,   math
     ,   ttypes
     ,   tconfig
     ;
+
+const
+        COLORS: array[TLoggerMode] of TColor = (
+                clBlack // wmAll
+            ,   clBlack // wmNoTest
+            ,   clRed   // wmFatal
+            ,   clRed   // wmError
+            ,   clOlive // wmWarn
+            ,   clGray  // wmDebug
+            ,   clBlack // wmInfo
+            ,   clAqua // wmTest
+        );
 
 //*** COMMON ***
 
@@ -77,106 +105,133 @@ begin
     halt(1)
 end;
 
-// *** LOGGER ***
+// *** BUFFER ***
 
-constructor TLogger.create(dir, logFile, testFile: String);
+constructor TBuffer.create;
 begin
-    self.logWriter  := TWriter.create(dir, logFile);
-    self.testWriter := TWriter.create(dir, testFile);
+    self.size       := 0;
+    self.pb         := 0;
+    self.pe         := 0;
+    self.capacity   := BUFFER_SIZE;
 end;
 
-function TLogger.error: TWriter;
+procedure TBuffer.push(message: String);
+var
+    i:          Integer;
 begin
-    result := self.logWriter.error;
+    inc(size); if (size > BUFFER_SIZE) then begin inc(pb); pb := pb mod BUFFER_SIZE; end;
+    buffer[pe] := message;
+    inc(pe); pe := pe mod BUFFER_SIZE;
+
+    for i := low(subscribers) to high(subscribers) do begin
+        TLoggerCallback(subscribers[i])();
+    end
 end;
 
-function TLogger.test: TWriter;
+function TBuffer.count: Integer;
 begin
-    result := self.testWriter.test;
+    if size < capacity then begin
+        result := size
+    end else begin
+        result := capacity
+    end
 end;
 
-function TLogger.fatal: TWriter;
+function TBuffer.get(index: Integer): String;
 begin
-    result := self.logWriter.fatal;
+    if (index < 0) or (index+1 > count) then begin
+        raise Exception.Create('buffer index out of bound');
+    end;
+
+    index := pb + index;
+    index := index + size - min(size, capacity);
+    index := index mod BUFFER_SIZE;
+
+    result := buffer[index]
 end;
 
-function TLogger.warn: TWriter;
+function TBuffer.last(capacity: Integer): TBuffer;
 begin
-    result := self.logWriter.warn;
+    self.capacity := capacity;
+    result := self;
 end;
 
-function TLogger.debug: TWriter;
+function TBuffer.full: TBuffer;
 begin
-    result := self.logWriter.debug;
+    result := last(BUFFER_SIZE)
 end;
 
-function TLogger.info: TWriter;
+procedure TBuffer.subscribe(callback: TLoggerCallback);
 begin
-    result := self.logWriter.info;
+    setLength(subscribers, length(subscribers) + 1);
+    subscribers[high(subscribers)] := callback
 end;
 
 // *** WRITER ***
 
-constructor TWriter.create(dir, fileName: String);
+constructor TLogger.create(dir, fileName: String);
+var
+    loggerMode: TLoggerMode;
 begin
-    self.mode       := wmInfo;
-    self.dir        := _dir(dir);
-    self.fileName   := fileName;
-    self.endline    := true;
-
-    self.append(#13#10#13#10)
+    self._mode       := wmInfo;
+    self._dir        := uUtils._dir(dir);
+    self._fileName   := fileName;
+    self._endline    := true;
+    for loggerMode := low(_buffer) to high(_buffer) do begin
+        _buffer[loggerMode] := TBuffer.create
+    end
 end;
 
-function TWriter.print(message: String): TWriter;
+function TLogger.print(message: String): TLogger;
 begin
+    message := self.now() + ' ' + self.section + ' ' + message;
+
     self.break;
+    self.append(message);
 
-    self.append(self.now() + ' ' + self.section + ' ' + message);
+    _buffer[wmAll].push(message);
+    if (wmTest <> _mode) then begin
+        _buffer[wmNoTest].push(message);
+    end;
+    _buffer[_mode].push(message);
 
     result := self;
 end;
 
-function TWriter.append(message: String): TWriter;
+function TLogger.append(message: String): TLogger;
 begin
-    if (not DirectoryExists(self.dir)) then begin
-        raise Exception.Create('Cannot create logger: directory ' + self.dir + ' does not exist');
+    if (not DirectoryExists(self._dir)) then begin
+        raise Exception.Create('Cannot create logger: directory ' + self._dir + ' does not exist');
     end;
 
-    assignFile(self.handle, _file(self.fileName, self.dir));
+    assignFile(self._handle, _file(self._fileName, self._dir));
 
-    if (not FileExists(_file(self.fileName, self.dir)))
-        then System.rewrite(self.handle)
-        else System.append(self.handle);
+    if (not FileExists(_file(self._fileName, self._dir)))
+        then System.rewrite(self._handle)
+        else System.append(self._handle);
 
-    write(self.handle, message);
+    write(self._handle, message);
 
-    closeFile(self.handle);
+    closeFile(self._handle);
 
-    self.endline := false;
+    self._endline := false;
 
     result := self;
 end;
 
-function TWriter.break: TWriter;
+function TLogger.break: TLogger;
 begin
-    if (not self.endline) then begin
+    if (not self._endline) then begin
         self.append(#13#10);
-        self.endline := true;
+        self._endline := true;
     end;
 
     result := self;
 end;
 
-function TWriter.separate: TWriter;
+function TLogger.section: String;
 begin
-    self.break; self.append(' '); self.break;
-
-    result := self;
-end;
-
-function TWriter.section: String;
-begin
-    case mode of
+    case _mode of
         wmFatal:    result := '[FATAL] ';
         wmError:    result := '[ERROR] ';
         wmWarn:     result := '[WARN]  ';
@@ -186,51 +241,95 @@ begin
     end;
 end;
 
-function TWriter.now: String;
+function TLogger.now: String;
 begin
     result := dtos(Date() + Time())
 end;
 
-function TWriter.error: TWriter;
+function TLogger.error: TLogger;
 begin
-    self.mode := wmError;
+    self._mode := wmError;
     result := self;
 end;
 
-function TWriter.test: TWriter;
+function TLogger.test: TLogger;
 begin
-    self.mode := wmTest;
+    self._mode := wmTest;
     result := self;
 end;
 
-function TWriter.fatal: TWriter;
+function TLogger.fatal: TLogger;
 begin
-    self.mode := wmFatal;
+    self._mode := wmFatal;
     result := self;
 end;
 
-function TWriter.warn: TWriter;
+function TLogger.warn: TLogger;
 begin
-    self.mode := wmWarn;
+    self._mode := wmWarn;
     result := self;
 end;
 
-function TWriter.debug: TWriter;
+function TLogger.debug: TLogger;
 begin
-    self.mode := wmDebug;
+    self._mode := wmDebug;
     result := self;
 end;
 
-function TWriter.info: TWriter;
+function TLogger.info: TLogger;
 begin
-    self.mode := wmInfo;
+    self._mode := wmInfo;
     result := self;
+end;
+
+procedure TLogger.subscribe(mode: TLoggerMode; callback: TLoggerCallback);
+begin
+    _buffer[mode].subscribe(callback);
+end;
+
+function TLogger.filter(mode: TLoggerMode): TBuffer;
+begin
+    result := _buffer[mode]
+end;
+
+function TLogger.mode(message: String): TLoggerMode;
+begin
+    if (pos('FATAL', message) > 0) then begin
+        result := wmFatal;
+    end else if (pos('ERROR', message) > 0) then begin
+        result := wmError;
+    end else if (pos('WARN', message) > 0) then begin
+        result := wmWarn;
+    end else if (pos('DEBUG', message) > 0) then begin
+        result := wmDebug;
+    end else if (pos('INFO', message) > 0) then begin
+        result := wmInfo;
+    end else if (pos('TEST', message) > 0) then begin
+        result := wmTest;
+    end else begin
+        result := wmInfo;
+        //raise Exception.Create('cannot determine logger mode for message: ' + message)
+    end
+end;
+
+function TLogger.color(message: String): TColor;
+begin
+    if (wmTest = mode(message)) then begin
+        if (pos('task res OK', message) > 0) then begin
+            result := clGreen
+        end else if (pos('task res', message) > 0) then begin
+            result := clRed
+        end else begin
+            result := clBlack;
+        end;
+    end else begin
+        result := COLORS[mode(message)]
+    end;
 end;
 
 begin
     logger := TLogger.create(
             mainconfig.readstring('log', 'logdir', '..\log\')
         ,   mainconfig.readstring('log', 'logfile', 'contester.log')
-        ,   mainconfig.readstring('log', 'testfile', 'contester.test')
     );
 end.

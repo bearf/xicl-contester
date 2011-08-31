@@ -104,7 +104,7 @@ RunParams=
 HostApplication=
 Launcher=
 UseLauncher=0
-DebugCWD=F:\05 distr\development\denwer\home\localhost\www\projects\xicl\contester\exe
+DebugCWD=
 [Language]
 ActiveLang=
 ProjectLang=
