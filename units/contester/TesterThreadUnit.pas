@@ -36,8 +36,6 @@ type
         procedure Test(id: integer);
         procedure ttConVisCB();
         procedure callConVisCB();
-//        procedure RecalcMonitor();
-//        procedure PrepareMonitor();
         property TesterStarted: boolean read GetTesterStarted write SetTesterStarted;
     end;
 
@@ -92,13 +90,12 @@ end;
 
 procedure TTesterThread.SetFalseTesterStarted;
 begin
-    TesterMainForm.TesterStarted := false;
+    TesterMainForm.stop;
 end;
 
 procedure TTesterThread.ChangeStatus;
 begin
     if TesterStarted then begin
-        TesterMainForm.DisableControls();
   		fl := true;
   		testerdir := ExtractFilePath(paramStr(0));
 
@@ -106,7 +103,6 @@ begin
   		RegCB(@ConVisCB);
     end else begin
   		UnregCB(@ConVisCB);
-        TesterMainForm.EnableControls();
     end;
 end;
 
@@ -130,12 +126,12 @@ begin
 
     //Upload результата только если всё прошло гладко...
     if SubmitInfo.result.result <> _BR then begin
-        logger.test.print('upload result... ');
+        logger.test.print('upload result ');
 
         //обновляем информацию в таблице Submit
         if not SetInfo(dbSubmit, SubmitInfo.ID, SubmitInfo)
-            then logger.test.append('error')
-   		    else logger.test.append('ok');
+            then logger.test.print('upload FAILED')
+   		    else logger.test.print('upload OK');
 
         //обновляем информацию в таблицах Volume и Monitor
         UpdateVolume(SubmitInfo);
@@ -170,6 +166,7 @@ begin
             end;
             Test(SubmitInfo.id);
         end; // for
+        sleep(200);
     end; // while
 end;
 

@@ -40,7 +40,6 @@ procedure mConVisCB();
   	mResult:=_NO;
   	Case Msg of
    	    CB_TEST_INIT: begin
-            logger.test.separate;
     			      integer(Ti):=lParam;
     			      logger.test.print(Format('task        %S (%D)', [TI^.name, TI^.ID]));
     			      if length(TI^.author)<>0 then
@@ -65,7 +64,6 @@ procedure mConVisCB();
       						      logger.test.print(Format('time   %S',
               					          [FormatDateTime(date_time_format, SI^.sTime)]));
     						  end;
-    			      logger.test.separate;
    			  end;
    			CB_TEST_START: 	begin
      					     curtest:=lParam;
@@ -75,7 +73,6 @@ procedure mConVisCB();
    			CB_RUN_INIT:
             	        case ID of
      				CB_RUN_TYPE_COMPILE:  begin
-                        logger.test.separate; logger.test.separate; logger.test.separate;
                         logger.test.print('compile');
                     end;
      				CB_RUN_TYPE_SOLUTION: logger.test.print(Format('test %2D execute', [curtest]));
@@ -83,23 +80,22 @@ procedure mConVisCB();
     			end;
    			CB_RUN_INFO:
     			case ID of
-     				CB_RUN_TYPE_COMPILE: logger.test.append('...');
-     				CB_RUN_TYPE_SOLUTION: logger.test.append('...');
-     				CB_RUN_TYPE_CHECKER: logger.test.append('...');
+     				CB_RUN_TYPE_COMPILE: ;
+     				CB_RUN_TYPE_SOLUTION: ;
+     				CB_RUN_TYPE_CHECKER: ;
     			end;
 
    			CB_RUN_DONE:
     			case ID of
-     				CB_RUN_TYPE_COMPILE: logger.test.append('done');
-     				CB_RUN_TYPE_SOLUTION: logger.test.append('done');
+     				CB_RUN_TYPE_COMPILE: logger.test.print('compile DONE');
+     				CB_RUN_TYPE_SOLUTION: logger.test.print('run DONE');
      				CB_RUN_TYPE_CHECKER : ;//logger.test.append('done');
     			end;
    			CB_TEST_RESULT: begin
     							res:=ptestresult(wparam)^.result;
     							point:=ptestresult(wparam)^.point;
     							msgs:=ptestresult(wparam)^.msg;
-    							logger.test.append(Format('%S =%D / %S', [ResultToStr(res), point, msgs]));
-                                logger.test.separate;
+    							logger.test.print(Format('%S =%D / %S', [ResultToStr(res), point, msgs]));
    							end;
    			CB_TEST_DONE: 	begin
     							res:=PTestResult(id)^.result;

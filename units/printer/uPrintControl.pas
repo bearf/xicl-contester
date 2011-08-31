@@ -284,7 +284,8 @@ procedure TPrintControl.assignPrinterFont(font: TFont);
 begin
   fPrinter.Canvas.Font.Size := font.Size;
   fPrinter.Canvas.Font.Style := font.Style;
-  fPrinter.Canvas.Font.Color := font.Color
+  fPrinter.Canvas.Font.Color := font.Color;
+  fPrinter.Canvas.Font.Name := _fontName;
 end;
 
 // Разбивает текст на строки

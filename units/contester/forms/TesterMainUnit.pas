@@ -2,65 +2,55 @@ unit TesterMainUnit;
 
 interface
 
-uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, AppEvnts, Buttons, WinSock, ttypes, tConfig, 
-  ExtCtrls, Menus, TesterThreadUnit, mysqldb;
+    uses
+            Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+            Dialogs, StdCtrls, ComCtrls, AppEvnts, Buttons, WinSock, ttypes, tConfig,
+            ExtCtrls, Menus,
+
+            TesterThreadUnit
+        ,   mysqldb
+        ,   tlog
+        ,   uEngine
+        ,   uDisplay
+        ;
 
 type
-  TTesterMainForm = class(TForm)
-    ApplicationEvents: TApplicationEvents;
-    MainMenu: TMainMenu;
-    N5: TMenuItem;
-    N6: TMenuItem;
-    N7: TMenuItem;
-    N8: TMenuItem;
-    N9: TMenuItem;
-    N10: TMenuItem;
-    N11: TMenuItem;
-    StartTournamentMenu: TMenuItem;
-    N12: TMenuItem;
-    N13: TMenuItem;
-    N14: TMenuItem;
-    N15: TMenuItem;
-    N16: TMenuItem;
-    N17: TMenuItem;
-    N18: TMenuItem;
-    N19: TMenuItem;
-    N20: TMenuItem;
-    Timer1: TTimer;
-    procedure FormCreate(Sender: TObject);
-    procedure TesterBitBtnClick(Sender: TObject);
-    function CurrText: TTextAttributes;
-    procedure EnableControls();
-    procedure DisableControls();
-    procedure ExitBitBtnClick(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure StartTournamentMenuClick(Sender: TObject);
-    procedure N14Click(Sender: TObject);
-    procedure N13Click(Sender: TObject);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure N20Click(Sender: TObject);
-    procedure N17Click(Sender: TObject);
-    procedure N18Click(Sender: TObject);
-    procedure N15Click(Sender: TObject);
-    procedure Timer1Timer(Sender: TObject);
-    procedure N10Click(Sender: TObject);
-    procedure N8Click(Sender: TObject);
-  protected
-    procedure SetTesterStarted(Value: boolean);
-    function GetTesterStarted: boolean;
-  private
-    tstart, tlen:   TDateTime;
-    tfinish:        TDateTime;
-    tflag:          Boolean;
-    FTesterStarted: boolean;
-    { Private declarations }
-  public
-    { Public declarations }
-    property TesterStarted: boolean read GetTesterStarted write SetTesterStarted;
-    procedure TerminateThread;
-  end;
+    TTesterMainForm = class(TForm)
+        ApplicationEvents: TApplicationEvents;
+        Panel2: TPanel;
+        pbTest: TPaintBox;
+        pbLog: TPaintBox;
+        pbConsole: TPaintBox;
+
+        procedure FormCreate(Sender: TObject);
+        procedure FormClose(Sender: TObject; var Action: TCloseAction);
+        procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+        procedure pbLogPaint(Sender: TObject);
+        procedure FormResize(Sender: TObject);
+        procedure pbTestPaint(Sender: TObject);
+        procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+        procedure pbConsolePaint(Sender: TObject);
+    protected
+    private
+        tstart, tlen:   TDateTime;
+        tfinish:        TDateTime;
+        FTesterStarted: boolean;
+        typing:         String;
+
+        log,
+        test,
+        console:        TDisplay;
+
+        procedure       SetTesterStarted(Value: boolean);
+    public
+        procedure       TerminateThread;
+        function        started: boolean;
+
+        function        start: Boolean;
+        function        stop: Boolean;
+        function        quit: Boolean;
+    end;
 
 Var
     TesterMainForm: TTesterMainForm;
@@ -68,17 +58,49 @@ Var
 
 implementation
 
-uses udb, tCallBack, tConVis, tlog, tsys, tTimes{,
-  UserAddFormUnit, TaskAddFormUnit};
+    uses
+            udb
+        ,   tCallBack
+        ,   tConVis
+        ,   tsys
+        ,   tTimes
+        ,   uKeyboard
+        ,   uCmdFactory
+        ,   uCmd
+        ;
 
 {$R *.dfm}
+
+
+    procedure logfunc;
+    begin
+        with TesterMainForm.log do
+            buffer(logger.filter(wmNoTest).last(limit()));
+    end;
+
+    procedure testfunc;
+    begin
+        with TesterMainForm.test do
+            buffer(logger.filter(wmTest).last(limit()));
+    end;
+
+    procedure consolefunc;
+    var
+        strings: TStrings;
+    begin
+        strings := TStringList.create;
+        strings.add('> ' + TesterMainForm.typing + '_');
+
+        with TesterMainForm.console do
+            show(strings);
+    end;
 
 procedure TTesterMainForm.TerminateThread;
 begin
     TesterThread := nil;
 end;
 
-function TTesterMainForm.GetTesterStarted: boolean;
+function TTesterMainForm.started: boolean;
 begin
     result := FTesterStarted;
 end;
@@ -93,161 +115,136 @@ end;
 
 procedure TTesterMainForm.FormCreate(Sender: TObject);
 begin
-    TesterStarted := false;
-    tflag := False;
-end;
+    setTesterStarted(false);
 
-procedure TTesterMainForm.EnableControls();
-begin
-  StartTournamentMenu.Enabled := True;
-  N17.Enabled                 := True;
-  N20.Enabled                 := True;
-  N13.Enabled                 := True;
-  N14.Enabled                 := True;
-  N8.Enabled                  := True;
-  N10.Enabled                 := True;
-  N18.Enabled                 := False;
-end;
+    // subscribe to display all log messages in paintbox
+    log := TDisplay.Create(pbLog);
+    logger.subscribe(wmAll, @logfunc);
 
-procedure TTesterMainForm.DisableControls();
-begin
-  StartTournamentMenu.Enabled := False;
-  N17.Enabled                 := False;
-  N20.Enabled                 := False;
-  N13.Enabled                 := False;
-  N14.Enabled                 := False;
-  N8.Enabled                  := False;
-  N10.Enabled                 := False;
-  N18.Enabled                 := True;
-end;
+    // subscribe to display all test messages in paintbox
+    test := TDisplay.Create(pbTest);
+    logger.subscribe(wmTest, @testfunc);
 
-function TTesterMainForm.CurrText: TTextAttributes;
-begin
-//  if RichEdit.SelLength > 0 then Result := RichEdit.SelAttributes
-//  else Result := RichEdit.DefAttributes;
-end;
-
-procedure TTesterMainForm.TesterBitBtnClick(Sender: TObject);
-begin
-    TesterStarted := not TesterStarted;
-end;
-
-procedure TTesterMainForm.ExitBitBtnClick(Sender: TObject);
-begin
-    TesterMainForm.Close;
+    // console
+    console := TDisplay.Create(pbConsole);
 end;
 
 procedure TTesterMainForm.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
     while TesterThread <> nil do begin sleep(100); end;
-end;
 
-procedure TTesterMainForm.StartTournamentMenuClick(Sender: TObject);
-begin
-    //StartTournamentForm.ShowModal;
-    tflag := False
-end;
+    engine.Free;
 
-procedure TTesterMainForm.N14Click(Sender: TObject);
-begin
-{    if TesterThread <> nil
-        then TesterThread.RecalcMonitor
-        else dbRecalcMonitor;}
-end;
-
-procedure TTesterMainForm.N13Click(Sender: TObject);
-begin
-{    if TesterThread <> nil
-        then TesterThread.PrepareMonitor
-        else dbPrepareMonitor;}
+    log.Free; log := nil;
+    test.Free; test := nil;
 end;
 
 procedure TTesterMainForm.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
-    if TesterStarted then CanClose:=false;
+    if started() then CanClose:=false;
 end;
 
-procedure TTesterMainForm.N20Click(Sender: TObject);
+procedure TTesterMainForm.pbLogPaint(Sender: TObject);
 begin
-  TesterMainForm.Close
+    logfunc
 end;
 
-procedure TTesterMainForm.N17Click(Sender: TObject);
+procedure TTesterMainForm.FormResize(Sender: TObject);
 begin
-  TesterStarted := True;
-//  tlen := db_get_contest_length;
-//  tstart := db_get_start_time;
-//  tfinish := db_get_finish_time;
-end;
-
-procedure TTesterMainForm.N18Click(Sender: TObject);
-begin
-  TesterStarted := False
-end;
-
-procedure TTesterMainForm.N15Click(Sender: TObject);
-begin
-//  mon.ShowMonitor(utServer)
-end;
-
-procedure TTesterMainForm.Timer1Timer(Sender: TObject);
-var sHour, sMin, sSec: String;
-    Hour, Min, Sec, MSec: Word;
-    s:                    String;
-begin
-{    if not tflag then begin
-      tlen := db_get_contest_length;
-      tstart := db_get_start_time;
-      tfinish := db_get_finish_time;
-      tflag := True;
+    if (test = nil) or (log = nil) or (console = nil) then begin
+        exit;
     end;
 
-    if Date+Time>tfinish then begin
-      DecodeTime(tlen, Hour, Min, Sec, MSec);
-      sHour := IntToStr(Hour);
-      sMin := IntToStr(Min);
-      sSec := IntToStr(Sec);
-      if Length(sMin)<2 then sMin := '0'+sMin;
-    	if Length(sSec)<2 then sSec := '0'+sSec;
-      s := 'Тестирующая система: тур завершен - '+sHour+':'+sMin+':'+sSec;
-      //Timer1.Interval := 30000;
-    end
-    else if Date+Time<tstart then begin
-      DecodeTime(tstart-Date-Time, Hour, Min, Sec, MSec);
-      sHour := IntToStr(Hour);
-      sMin := IntToStr(Min);
-      sSec := IntToStr(Sec);
-      if Length(sMin)<2 then sMin := '0'+sMin;
-    	if Length(sSec)<2 then sSec := '0'+sSec;
-      s := 'Тестирующая система: до начала турнира '+sHour+':'+sMin+':'+sSec;
-      //Timer1.Interval := 1000;
-    end
-    else begin
-      DecodeTime(Date+Time-tstart, Hour, Min, Sec, MSec);
-      sHour := IntToStr(Hour);
-      sMin := IntToStr(Min);
-      sSec := IntToStr(Sec);
-      if Length(sMin)<2 then sMin := '0'+sMin;
-    	if Length(sSec)<2 then sSec := '0'+sSec;
-      s := 'Тестирующая система: '+sHour+':'+sMin+':'+sSec;
+    test.resize(Rect(
+            uDisplay.MARGIN
+        ,   uDisplay.MARGIN + uDisplay.CONSOLE_HEIGHT + uDisplay.MARGIN
+        ,   uDisplay.MARGIN + (testerMainForm.Width div 2 - uDisplay.MARGIN - uDisplay.MARGIN div 2)
+        ,   testerMainForm.Height - uDisplay.MARGIN
+    ));
+
+    log.resize(Rect(
+            uDisplay.MARGIN + testerMainForm.Width div 2 - uDisplay.MARGIN - uDisplay.MARGIN div 2 + uDisplay.MARGIN
+        ,   uDisplay.MARGIN + uDisplay.CONSOLE_HEIGHT + uDisplay.MARGIN
+        ,   testerMainForm.Width - uDisplay.MARGIN
+        ,   testerMainForm.Height - uDisplay.MARGIN
+    ));
+
+    console.resize(Rect(
+            uDisplay.MARGIN
+        ,   uDisplay.MARGIN
+        ,   testerMainForm.Width - uDisplay.MARGIN
+        ,   uDisplay.MARGIN + uDisplay.CONSOLE_HEIGHT
+    ));
+end;
+
+procedure TTesterMainForm.pbTestPaint(Sender: TObject);
+begin
+    testfunc
+end;
+
+    procedure TTesterMainForm.FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    var
+        cmd:    TCmd;
+    begin
+        if (_KEY_BACKSPACE = key) then begin
+            typing := copy(typing, 1, length(typing) - 1);
+        end else if (_KEY_ENTER = key) then begin
+            cmd := cmdFactory.instance(typing);
+            if nil <> cmd then begin
+                engine.push(cmd);
+            end;
+            typing := '';
+        end else begin
+            typing := typing + keyboard.key(key, shift);
+        end;
+        pbConsole.Invalidate;
     end;
 
-    if Assigned(TesterThread) then
-      Caption := s + ' - [Тестер запущен]'
-    else
-      Caption := s + ' - [Тестер остановлен]'}
-end;
+    procedure TTesterMainForm.pbConsolePaint(Sender: TObject);
+    begin
+        consolefunc
+    end;
 
-procedure TTesterMainForm.N10Click(Sender: TObject);
-begin
-//    UserAddForm.ShowModal;
-end;
+    function TTesterMainForm.start: Boolean;
+    begin
+        if not started then begin
+            logger.debug.print('attempt to start tester');
+            SetTesterStarted(true);
+            logger.debug.print('attempt to start tester was successful');
+            result := true;
+        end else begin
+            logger.warn.print('attempt to start tester was dropped: tester is already started');
+            result := false;
+        end;
+    end;
 
-procedure TTesterMainForm.N8Click(Sender: TObject);
-begin
-//    TaskAddForm.ShowModal;
-end;
+    function TTesterMainForm.stop: Boolean;
+    begin
+        if not started then begin
+            logger.warn.print('attempt to stop tester was dropped: tester is already stopped');
+            result := false;
+        end else begin
+            logger.debug.print('attempt to stop tester');
+            SetTesterStarted(false);
+            logger.debug.print('attempt to stop tester was successful');
+            result := true;
+        end;
+    end;
+
+    function TTesterMainForm.quit: Boolean;
+    begin
+        if not started then begin
+            logger.debug.print('attempt to quit application');
+            Application.Terminate;
+            logger.debug.print('attempt to quit application: successful');
+            result := true;
+        end else begin
+            logger.warn.print('attempt to quit application was dropped: tester is started');
+            result := false;
+        end;
+    end;
 
 end.
