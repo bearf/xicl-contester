@@ -115,6 +115,7 @@ TYPE
                                              //см костанты SUBMIT_XXXX
                       {-}
                       result: TTestResult; //результат тестирования
+                      testingId: Integer; // ID тестирования
 //  	                rtest   : TAllTestResult;//результат по тестам
 	end;
 

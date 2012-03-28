@@ -1,5 +1,6 @@
 [tsys]
 workdir=c:\contest\work\
+id=1
 
 [compile]
 compile_batch_dir=c:\contest\compile\
