@@ -33,7 +33,7 @@ type
         procedure Finishing();
         procedure ChangeStatus;
         procedure SetFalseTesterStarted;
-        procedure Test(id: integer);
+        procedure Test(id, testingId: integer);
         procedure ttConVisCB();
         procedure callConVisCB();
         property TesterStarted: boolean read GetTesterStarted write SetTesterStarted;
@@ -106,7 +106,7 @@ begin
     end;
 end;
 
-procedure TTesterThread.Test(id: integer);
+procedure TTesterThread.Test(id, testingId: integer);
 var
     SubmitInfo: TSubmitInfo;
     ec:         integer;
@@ -136,6 +136,9 @@ begin
         //обновляем информацию в таблицах Volume и Monitor
         UpdateVolume(SubmitInfo);
 
+        SubmitInfo.testingId := testingId;
+        UpdateTesting(SubmitInfo);
+
         // эта строка - только ДЛЯ ОЧНОГО ТУРА!!!!!
         if not isMonitorFrozen(SubmitInfo) then begin
             UpdateMonitor(SubmitInfo);
@@ -164,7 +167,7 @@ begin
                 done();
                 break;
             end;
-            Test(SubmitInfo.id);
+            Test(SubmitInfo.id, SubmitInfo.testingId);
         end; // for
         sleep(200);
     end; // while

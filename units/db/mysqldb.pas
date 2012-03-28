@@ -37,10 +37,10 @@ procedure db_done;
 function db_user_auth(var User : TUserInfo) : boolean;
 function db_read_user_tasks(UserID : integer) : integer;
 function db_get_task_bynum(num : integer; var Task: TTaskInfo): boolean;
-function db_read_submits(UserID : integer): integer;
 function db_get_submit_bynum(num : integer; var Submit: TSubmitInfo): boolean;
 function db_user_submit_file(fname : string; UserID, TaskID : integer; lng : String) : integer;
 function db_read_tester_submits: integer;
+function db_update_testing(SubmitInfo: TSubmitInfo): Boolean;
 function db_lock(table_id : integer; locktype : integer) : boolean;
 function db_unlock : boolean;
 function db_create_id(table_id : integer) : integer;
@@ -70,7 +70,9 @@ implementation
 
 uses
     Math,
-    uUtils;
+    uUtils,
+    tConfig
+    ;
 
 const
     max_submitfile_size : integer = 51000;
@@ -432,54 +434,16 @@ begin
     end;
 end;
 
-//читает информацию о посылках в кэш для submit.user = UserID,
-//и d_from<submit.stime<d_to, возвращает количество записей
-function db_read_submits(UserID : integer): integer;
+function db_update_testing(SubmitInfo: TSubmitInfo): Boolean;
 var
-    q : string;
-    i : integer;
+    q: String;
 begin
-  	result := 0;
-  	setlength(submits, 0);
-  	if (UserID = InvalidID) then begin
-    	db_error('Invalid UserID: ' + inttostr(UserID), false);
-    	exit;
-  	end;
+    result := true;
 
-  	if not ping then exit;
+  q := 'UPDATE testing SET finished=NOW(), result="0" WHERE testingId="' + inttostr(SubmitInfo.testingId) + '" AND contesterId="' + MainConfig.ReadString('tsys', 'id', '1') + '"';
+  if not db_insert(q) or (0 = mysql_affected_rows(sock)) then
+    result := false;
 
-  	q := 	'SELECT ' +
-          '  S.SubmitID,S.ProblemID,S.ContestID,S.Attempt,S.SubmitTime,S.StatusID,S.ResultID,S.Pts,S.Msg,L.TimeMul,L.MemoryBuf '+
-          'FROM submit S inner join Lang L on S.LangId=L.LangId ' +
-       		'  WHERE S.UserID='+inttostr(UserID);
-
-  	if not db_query(q) then exit;
-
-  	result := mysql_num_rows (recbuf);
-  	setlength(submits, result);
-
-  	rowbuf := mysql_fetch_row(recbuf);
-  	i := 0;
-  	while (rowbuf <> nil) and (i < length(submits)) do
-  		with submits[i] do begin
-    		user          := UserID;
-    		id            := StrToIntDef(rowbuf[0], 0);
-    		problem       := rowbuf[1];
-        contest       := StrToIntDef(rowbuf[2], 0);
-    		stry          := StrToIntDef(rowbuf[3], 0);
-    		stime         := StrToDateTimeS(rowbuf[4]);
-    		status        := StrToIntDef(rowbuf[5], 0);
-    		result.result := StrToIntDef(rowbuf[6], 0);
-    		result.point  := StrToIntDef(rowbuf[7], 0);
-    		result.msg := StrPas(rowbuf[8]);
-    		timemul       := StrToIntDef(rowbuf[9], 100);
-    		memorybuf     := StrToIntDef(rowbuf[10], 0);
-    		ConvertStr(cpMySQL, dbcp, result.msg, result.msg);
-    		inc(i);
-    		rowbuf := mysql_fetch_row(recbuf);
-  		end;
-
-  	mysql_free_result (recbuf);
 end;
 
 //получить посылку из кэша по номеру
@@ -555,29 +519,31 @@ function db_read_tester_submits: integer;
 var
     q        : string;
     i        : integer;
+    testingId: integer;
 begin
   	result := 0;
   	setlength(submits, 0);
 
   	if not ping then exit;
 
-  	q := 	'SELECT S.SubmitID,S.UserID,S.ProblemID,S.ContestID,S.Attempt,S.SubmitTime,S.StatusID,L.Batch,L.TimeMul,L.MemoryBuf '+
+  	q := 	'SELECT S.SubmitID,S.UserID,S.ProblemID,S.ContestID,S.Attempt,S.SubmitTime,S.StatusID,L.Batch,L.TimeMul,L.MemoryBuf,T.testingId '+
           //',(select min(attempt) from submit s2 where S2.ContestID=S.contestID and S2.problemID=S.problemID and S2.userID=S.userID and s2.statusid=0 and s2.resultid=0 and s2.submitid<>s.submitid) as `successfulattemptnum` ' +
           'FROM ' +
-            '(submit S INNER JOIN lang L ON S.LangID=L.LangID) ' +
+            '(testing T INNER JOIN (submit S INNER JOIN lang L ON S.LangID=L.LangID) ON T.submitId = S.SubmitId)' +
             'inner join cntest C on S.contestId=C.contestId ' +
-       		'WHERE S.StatusID<>"0" ' +
+       		'WHERE T.result="1" and T.contesterId="0"' +
             ' and S.SubmitTime < C.finish ' +
-          'ORDER BY S.SubmitID';
+          'ORDER BY S.SubmitID LIMIT 1';
 
     if not db_query(q) then exit;
 
   	result := mysql_num_rows (recbuf);
+    if result > 1 then result := 1;
   	setlength(submits, result);
 
   	rowbuf := mysql_fetch_row(recbuf);
   	i := 0;
-  	while (rowbuf <> nil) and (i < length(submits)) do
+  	while (rowbuf <> nil) and (i < length(submits)) do begin
     	with submits[i] do begin
     		id            := StrToIntDef(rowbuf[0], 0);
     		user          := StrToIntDef(rowbuf[1], 0);
@@ -591,11 +557,21 @@ begin
         MemoryBuf     := StrToIntDef(rowbuf[9], 0);
         //successfulAttemptNum := StrToIntDef(rowbuf[8], 0);
         //isTaskSolved := successfulAttemptNum > 0;
-    		inc(i);
+            testingId := StrToIntDef(rowbuf[10], 0);
     		rowbuf := mysql_fetch_row(recbuf);
  		end;
+        testingId := submits[i].testingId;
+  		inc(i);
+    end;
 
   mysql_free_result (recbuf);
+
+  if result > 0 then begin
+      q := 'UPDATE testing SET started=NOW(), result="2", contesterId="' + MainConfig.ReadString('tsys', 'id', '1') + '" WHERE testingId="' + inttostr(testingId) + '"';
+      if not db_insert(q) or (0 = mysql_affected_rows(sock)) then begin
+        setlength(submits, 0); result := 0;
+      end;
+  end;
 end;
 
 

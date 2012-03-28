@@ -1,22 +1,23 @@
 [tsys]
 workdir=.\..\work\
+id=1
 
 [compile]
 compile_batch_dir=.\..\compile\
 
 [db]
-testsdir=.\..\tests\
+testsdir=.\..\..\tests\
 dbsolvefile=solve.src
-dbname=icl2011
-dbhost=192.168.1.104
-dbuser=contest
-dbpass=contest2011
+dbname=contest
+dbhost=localhost
+dbuser=root
+dbpass=
 
 [log]
 logdir=.\..\log\
 logfile=contester.log
 
 [DataBase]
-db_name=icl2011
-db_host=192.168.1.104
-waiter=192.168.1.104
+db_name=contest
+db_host=localhost
+waiter=localhost

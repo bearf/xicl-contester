@@ -22,22 +22,15 @@ uses windows, SysUtils, tTypes, ttimes, inifiles, tLog, tFiles, tConfig, mycp, m
 
 	function GetSolve (SubmitID : integer; fname : string): boolean;
 
-//        function dbRecalcMonitor(): boolean;
-//        function dbPrepareMonitor(): boolean;
-
 function UpdateVolume(SubmitInfo: TSubmitInfo): Boolean;
 function UpdateMonitor(SubmitInfo: TSubmitInfo): boolean;
+function UpdateTesting(SubmitInfo: TSubmitInfo): Boolean;
 function isMonitorFrozen(SubmitInfo: TSubmitInfo): Boolean;
-
-{        function SetConfig(Name, Value: string):boolean;
-        function GetConfig(Name: string):string;}
 
 {------local db -----}
 	function GetTestFiles(TaskID, Testnum : integer; SrcNames, DestNames : string; Destdir : string) : boolean;
 
 	function GetApp(TaskID : integer; Name : string; Destdir : string) : boolean;
-//function UserAdd(name, login, pass, ip: string): boolean;
-//function TaskAdd(task, author, input, output, rans, checker, testcount, timelimit, memlimit: string): boolean;
 
 var dbSolveFile : String;
 
@@ -49,16 +42,6 @@ uses
 var testdir : string;
     db_name, db_host, db_user, db_pass : String;
 
-{function UserAdd(name, login, pass, ip: string): boolean;
-begin
-    result := db_user_add(name, login, pass, ip);
-end;}
-
-{function TaskAdd(task, author, input, output, rans, checker, testcount, timelimit, memlimit: string): boolean;
-begin
-    result := db_task_add(task, author, input, output, rans, checker, testcount, timelimit, memlimit);
-end;}
-
 function ReadTesterSubmits: integer;
 begin
   result := db_read_tester_submits;
@@ -69,30 +52,10 @@ begin
   result := db_get_submit_bynum(num,Submit);
 end;
 
-{function SetConfig(Name, Value: string):boolean;
-var q: string;
+function UpdateTesting(SubmitInfo: TSubmitInfo): Boolean;
 begin
-    q := 'UPDATE `config` SET value='''+value+''' WHERE name ='''+name+''';';
-    db_insert(q);
-    result := true;
-end;}
-
-{function GetConfig(Name: string):string;
-begin
-    result := db_get_config(name);
-end;}
-
-{function dbPrepareMonitor(): boolean;
-begin
-    db_prepare_monitor;
-    result := true;
-end;}
-
-{function dbRecalcMonitor(): boolean;
-begin
-    db_recalc_monitor;
-    result := true;
-end;}
+    result := db_update_testing(SubmitInfo);
+end;
 
 function UpdateVolume(SubmitInfo: TSubmitInfo): Boolean;
 var

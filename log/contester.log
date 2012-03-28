@@ -12194,3 +12194,240 @@
 2011-04-02 04:13:30 [DEBUG]  command "stop" was scheduled to run
 2011-04-02 04:13:30 [DEBUG]  attempt to run command "stop"
 2011-04-02 04:13:30 [DEBUG]  engine handler: command "stop" was runned
+2012-03-28 17:41:33 [FATAL]  Directory with tests not exists2012-03-28 17:42:03 [FATAL]  Directory with tests not exists2012-03-28 17:42:42 [DEBUG]  command "start" was scheduled to run
+2012-03-28 17:42:42 [DEBUG]  attempt to run command "start"
+2012-03-28 17:42:42 [DEBUG]  engine handler: command "start" was runned
+2012-03-28 17:42:43 [DEBUG]  trying to start server
+2012-03-28 17:42:43 [DEBUG]  attempt to start tester
+2012-03-28 17:42:43 [DEBUG]  attempt to start tester was successful
+2012-03-28 17:42:43 [INFO]   server was successfully started
+2012-03-28 17:42:43 [DEBUG]  engine handler: command "start" executed successfully
+2012-03-28 17:42:43 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:43 [ERROR]  mysql  : 
+2012-03-28 17:42:43 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:43 [ERROR]  mysql  : 
+2012-03-28 17:42:43 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:43 [ERROR]  mysql  : 
+2012-03-28 17:42:43 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:43 [ERROR]  mysql  : 
+2012-03-28 17:42:44 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:44 [ERROR]  mysql  : 
+2012-03-28 17:42:44 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:44 [ERROR]  mysql  : 
+2012-03-28 17:42:44 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:44 [ERROR]  mysql  : 
+2012-03-28 17:42:44 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:44 [ERROR]  mysql  : 
+2012-03-28 17:42:44 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:44 [ERROR]  mysql  : 
+2012-03-28 17:42:45 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:45 [ERROR]  mysql  : 
+2012-03-28 17:42:45 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:45 [ERROR]  mysql  : 
+2012-03-28 17:42:45 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:45 [ERROR]  mysql  : 
+2012-03-28 17:42:45 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:45 [ERROR]  mysql  : 
+2012-03-28 17:42:46 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:46 [ERROR]  mysql  : 
+2012-03-28 17:42:46 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:46 [ERROR]  mysql  : 
+2012-03-28 17:42:46 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:46 [ERROR]  mysql  : 
+2012-03-28 17:42:46 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:46 [ERROR]  mysql  : 
+2012-03-28 17:42:46 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:46 [ERROR]  mysql  : 
+2012-03-28 17:42:47 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:47 [ERROR]  mysql  : 
+2012-03-28 17:42:47 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:47 [ERROR]  mysql  : 
+2012-03-28 17:42:47 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:47 [ERROR]  mysql  : 
+2012-03-28 17:42:47 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:47 [ERROR]  mysql  : 
+2012-03-28 17:42:47 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:47 [ERROR]  mysql  : 
+2012-03-28 17:42:48 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:48 [ERROR]  mysql  : 
+2012-03-28 17:42:48 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:48 [ERROR]  mysql  : 
+2012-03-28 17:42:48 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:48 [ERROR]  mysql  : 
+2012-03-28 17:42:48 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:48 [ERROR]  mysql  : 
+2012-03-28 17:42:49 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:49 [ERROR]  mysql  : 
+2012-03-28 17:42:49 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:49 [ERROR]  mysql  : 
+2012-03-28 17:42:49 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:49 [ERROR]  mysql  : 
+2012-03-28 17:42:49 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:42:49 [ERROR]  mysql  : 
+2012-03-28 17:42:49 [DEBUG]  command "stop" was scheduled to run
+2012-03-28 17:42:49 [DEBUG]  attempt to run command "stop"
+2012-03-28 17:42:49 [DEBUG]  engine handler: command "stop" was runned
+2012-03-28 17:42:49 [DEBUG]  trying to stop server
+2012-03-28 17:42:49 [DEBUG]  attempt to stop tester
+2012-03-28 17:42:49 [DEBUG]  attempt to stop tester was successful
+2012-03-28 17:42:49 [INFO]   server was successfully stopped
+2012-03-28 17:42:49 [DEBUG]  engine handler: command "stop" executed successfully
+2012-03-28 17:42:52 [DEBUG]  command "quit" was scheduled to run
+2012-03-28 17:42:52 [DEBUG]  attempt to run command "quit"
+2012-03-28 17:42:52 [DEBUG]  engine handler: command "quit" was runned
+2012-03-28 17:42:52 [DEBUG]  trying to terminate application
+2012-03-28 17:42:52 [DEBUG]  attempt to quit application
+2012-03-28 17:42:52 [DEBUG]  attempt to quit application: successful
+2012-03-28 17:42:52 [INFO]   application successfully terminated
+2012-03-28 17:42:52 [DEBUG]  engine handler: command "quit" executed successfully2012-03-28 17:43:15 [DEBUG]  command "start" was scheduled to run
+2012-03-28 17:43:15 [DEBUG]  attempt to run command "start"
+2012-03-28 17:43:15 [DEBUG]  engine handler: command "start" was runned
+2012-03-28 17:43:15 [DEBUG]  trying to start server
+2012-03-28 17:43:15 [DEBUG]  attempt to start tester
+2012-03-28 17:43:15 [DEBUG]  attempt to start tester was successful
+2012-03-28 17:47:16 [DEBUG]  command "start" was scheduled to run
+2012-03-28 17:47:16 [DEBUG]  attempt to run command "start"
+2012-03-28 17:47:16 [DEBUG]  engine handler: command "start" was runned
+2012-03-28 17:47:16 [DEBUG]  trying to start server
+2012-03-28 17:47:16 [DEBUG]  attempt to start tester
+2012-03-28 17:47:16 [DEBUG]  attempt to start tester was successful
+2012-03-28 17:47:25 [INFO]   server was successfully started
+
+2012-03-28 17:47:34 [ERROR]  mysqldb: Query returned NULL result2012-03-28 17:47:34 [DEBUG]  engine handler: command "start" executed successfully
+2012-03-28 17:47:34 [ERROR]  mysql  : 
+2012-03-28 17:48:05 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:48:05 [ERROR]  mysql  : 2012-03-28 17:48:41 [DEBUG]  command "start" was scheduled to run
+2012-03-28 17:48:41 [DEBUG]  attempt to run command "start"
+2012-03-28 17:48:41 [DEBUG]  engine handler: command "start" was runned
+2012-03-28 17:48:41 [DEBUG]  trying to start server
+2012-03-28 17:48:41 [DEBUG]  attempt to start tester
+2012-03-28 17:48:41 [DEBUG]  attempt to start tester was successful
+2012-03-28 17:48:45 [INFO]   server was successfully started
+2012-03-28 17:50:04 [DEBUG]  command "start" was scheduled to run
+2012-03-28 17:50:04 [DEBUG]  attempt to run command "start"
+2012-03-28 17:50:04 [DEBUG]  engine handler: command "start" was runned
+2012-03-28 17:50:05 [DEBUG]  trying to start server
+2012-03-28 17:50:05 [DEBUG]  attempt to start tester
+2012-03-28 17:50:05 [DEBUG]  attempt to start tester was successful2012-03-28 17:50:19 [DEBUG]  command "start" was scheduled to run
+2012-03-28 17:50:19 [DEBUG]  attempt to run command "start"
+2012-03-28 17:50:19 [DEBUG]  engine handler: command "start" was runned
+2012-03-28 17:50:19 [DEBUG]  trying to start server
+2012-03-28 17:50:19 [DEBUG]  attempt to start tester
+2012-03-28 17:50:19 [DEBUG]  attempt to start tester was successful
+2012-03-28 17:50:22 [INFO]   server was successfully started2012-03-28 17:51:36 [DEBUG]  command "start" was scheduled to run
+2012-03-28 17:51:36 [DEBUG]  attempt to run command "start"
+2012-03-28 17:51:36 [DEBUG]  engine handler: command "start" was runned
+2012-03-28 17:51:36 [DEBUG]  trying to start server
+2012-03-28 17:51:36 [DEBUG]  attempt to start tester
+2012-03-28 17:51:36 [DEBUG]  attempt to start tester was successful
+2012-03-28 17:51:40 [INFO]   server was successfully started
+2012-03-28 17:51:43 [DEBUG]  engine handler: command "start" executed successfully
+2012-03-28 17:52:06 [DEBUG]  command "stop" was scheduled to run
+2012-03-28 17:52:06 [DEBUG]  attempt to run command "stop"
+2012-03-28 17:52:06 [DEBUG]  engine handler: command "stop" was runned
+2012-03-28 17:52:06 [DEBUG]  trying to stop server
+2012-03-28 17:52:06 [DEBUG]  attempt to stop tester
+2012-03-28 17:52:06 [DEBUG]  attempt to stop tester was successful
+2012-03-28 17:52:06 [INFO]   server was successfully stopped
+2012-03-28 17:52:06 [DEBUG]  engine handler: command "stop" executed successfully
+2012-03-28 17:52:13 [TEST]   upload result 
+2012-03-28 17:52:13 [TEST]   upload OK
+2012-03-28 17:52:13 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:52:13 [ERROR]  mysql  : 
+2012-03-28 17:52:18 [DEBUG]  command "stop" was scheduled to run
+2012-03-28 17:52:18 [DEBUG]  attempt to run command "stop"
+2012-03-28 17:52:18 [DEBUG]  engine handler: command "stop" was runned
+2012-03-28 17:52:18 [DEBUG]  trying to stop server
+2012-03-28 17:52:18 [WARN]   attempt to stop tester was dropped: tester is already stopped
+2012-03-28 17:52:18 [ERROR]  attempt to stop server was failed
+2012-03-28 17:52:18 [ERROR]  engine handler: FAIL event for command "stop"
+2012-03-28 17:52:21 [DEBUG]  command "stop" was scheduled to run
+2012-03-28 17:52:21 [DEBUG]  attempt to run command "stop"
+2012-03-28 17:52:21 [DEBUG]  engine handler: command "stop" was runned
+2012-03-28 17:52:21 [DEBUG]  trying to stop server
+2012-03-28 17:52:21 [WARN]   attempt to stop tester was dropped: tester is already stopped
+2012-03-28 17:52:21 [ERROR]  attempt to stop server was failed
+2012-03-28 17:52:21 [ERROR]  engine handler: FAIL event for command "stop"2012-03-28 17:52:49 [DEBUG]  command "start" was scheduled to run
+2012-03-28 17:52:49 [DEBUG]  attempt to run command "start"
+2012-03-28 17:52:49 [DEBUG]  engine handler: command "start" was runned
+2012-03-28 17:52:49 [DEBUG]  trying to start server
+2012-03-28 17:52:49 [DEBUG]  attempt to start tester
+2012-03-28 17:52:49 [DEBUG]  attempt to start tester was successful
+2012-03-28 17:52:51 [INFO]   server was successfully started
+2012-03-28 17:52:51 [DEBUG]  engine handler: command "start" executed successfully
+2012-03-28 17:52:52 [TEST]   compile
+2012-03-28 17:52:52 [TEST]   compile DONE
+2012-03-28 17:52:52 [TEST]   task        A+B (8)
+2012-03-28 17:52:52 [TEST]   timelimit   1,000 s
+2012-03-28 17:52:52 [TEST]   memorylimit 2000 kb
+2012-03-28 17:52:52 [TEST]   submit 47346
+2012-03-28 17:52:52 [TEST]   user   »горь «иновьев (1)
+2012-03-28 17:52:52 [TEST]   try    110
+2012-03-28 17:52:52 [TEST]   time   2012-03-28 00:21:09
+2012-03-28 17:52:52 [TEST]   task res ќшибка компил€ции
+2012-03-28 17:52:52 [TEST]   message  ќшибка компил€ции
+2012-03-28 17:52:52 [TEST]   upload result 
+2012-03-28 17:52:52 [TEST]   upload OK
+2012-03-28 17:52:52 [ERROR]  mysqldb: Query returned NULL result
+2012-03-28 17:52:52 [ERROR]  mysql  : 2012-03-28 17:53:37 [DEBUG]  command "start" was scheduled to run
+2012-03-28 17:53:37 [DEBUG]  attempt to run command "start"
+2012-03-28 17:53:37 [DEBUG]  engine handler: command "start" was runned
+2012-03-28 17:53:37 [DEBUG]  trying to start server
+2012-03-28 17:53:37 [DEBUG]  attempt to start tester
+2012-03-28 17:53:37 [DEBUG]  attempt to start tester was successful
+2012-03-28 17:53:37 [INFO]   server was successfully started
+2012-03-28 17:53:37 [DEBUG]  engine handler: command "start" executed successfully
+2012-03-28 17:53:37 [TEST]   compile
+2012-03-28 17:53:37 [TEST]   compile DONE
+2012-03-28 17:53:38 [TEST]   task        A+B (8)
+2012-03-28 17:53:38 [TEST]   timelimit   1,000 s
+2012-03-28 17:53:38 [TEST]   memorylimit 2000 kb
+2012-03-28 17:53:38 [TEST]   submit 47346
+2012-03-28 17:53:38 [TEST]   user   »горь «иновьев (1)
+2012-03-28 17:53:38 [TEST]   try    110
+2012-03-28 17:53:38 [TEST]   time   2012-03-28 00:21:09
+2012-03-28 17:53:38 [TEST]   task res ќшибка компил€ции
+2012-03-28 17:53:38 [TEST]   message  ќшибка компил€ции
+2012-03-28 17:53:38 [TEST]   upload result 
+2012-03-28 17:53:38 [TEST]   upload OK
+2012-03-28 17:54:00 [DEBUG]  command "stop" was scheduled to run
+2012-03-28 17:54:00 [DEBUG]  attempt to run command "stop"
+2012-03-28 17:54:00 [DEBUG]  engine handler: command "stop" was runned
+2012-03-28 17:54:00 [DEBUG]  trying to stop server
+2012-03-28 17:54:00 [DEBUG]  attempt to stop tester
+2012-03-28 17:54:00 [DEBUG]  attempt to stop tester was successful
+2012-03-28 17:54:00 [INFO]   server was successfully stopped
+2012-03-28 17:54:00 [DEBUG]  engine handler: command "stop" executed successfully
+2012-03-28 17:54:02 [DEBUG]  command "quit" was scheduled to run
+2012-03-28 17:54:02 [DEBUG]  attempt to run command "quit"
+2012-03-28 17:54:02 [DEBUG]  engine handler: command "quit" was runned
+2012-03-28 17:54:02 [DEBUG]  trying to terminate application
+2012-03-28 17:54:02 [DEBUG]  attempt to quit application
+2012-03-28 17:54:02 [DEBUG]  attempt to quit application: successful
+2012-03-28 17:54:02 [INFO]   application successfully terminated
+2012-03-28 17:54:02 [DEBUG]  engine handler: command "quit" executed successfully2012-03-28 17:54:32 [DEBUG]  command "start" was scheduled to run
+2012-03-28 17:54:32 [DEBUG]  attempt to run command "start"
+2012-03-28 17:54:32 [DEBUG]  engine handler: command "start" was runned
+2012-03-28 17:54:32 [DEBUG]  trying to start server
+2012-03-28 17:54:32 [DEBUG]  attempt to start tester
+2012-03-28 17:54:43 [DEBUG]  attempt to start tester was successful2012-03-28 17:56:53 [DEBUG]  command "start" was scheduled to run
+2012-03-28 17:56:53 [DEBUG]  attempt to run command "start"
+2012-03-28 17:56:53 [DEBUG]  engine handler: command "start" was runned
+2012-03-28 17:56:53 [DEBUG]  trying to start server
+2012-03-28 17:56:53 [DEBUG]  attempt to start tester
+2012-03-28 17:56:56 [DEBUG]  attempt to start tester was successful
+2012-03-28 17:56:56 [INFO]   server was successfully started
+2012-03-28 17:56:56 [DEBUG]  engine handler: command "start" executed successfully
+2012-03-28 17:56:56 [TEST]   compile
+2012-03-28 17:56:56 [TEST]   compile DONE
+2012-03-28 17:56:56 [TEST]   task        A+B (8)
+2012-03-28 17:56:56 [TEST]   timelimit   1,000 s
+2012-03-28 17:56:56 [TEST]   memorylimit 2000 kb
+2012-03-28 17:56:56 [TEST]   submit 47346
+2012-03-28 17:56:56 [TEST]   user   »горь «иновьев (1)
+2012-03-28 17:56:56 [TEST]   try    110
+2012-03-28 17:56:56 [TEST]   time   2012-03-28 00:21:09
+2012-03-28 17:56:56 [TEST]   task res ќшибка компил€ции
+2012-03-28 17:56:56 [TEST]   message  ќшибка компил€ции
+2012-03-28 17:56:56 [TEST]   upload result 
+2012-03-28 17:56:56 [TEST]   upload OK
