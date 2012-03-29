@@ -412,7 +412,7 @@ function TestSubmit(var SubmitInfo: TSubmitInfo):integer;
    		_submit := SubmitInfo.id;
    		_submitinfo := @SubmitInfo;
       if (SubmitInfo.bat = 'java.bat') then
-     		ec := TestTask(TmpDir, 'java -cp . -Xmx128M -Xms128M -Xss128M -DONLINE_JUDGE=true -Duser.language=en -Duser.region=US -Duser.variant=US Solution', SubmitInfo.DOS, SubmitInfo.TimeMul, SubmitInfo.MemoryBuf, TaskInfo, TaskResult)
+     		ec := TestTask(TmpDir, 'java -cp . -Xmx256M -Xms256M -Xss256M -DONLINE_JUDGE=true -Duser.language=en -Duser.region=US -Duser.variant=US Solution', SubmitInfo.DOS, SubmitInfo.TimeMul, SubmitInfo.MemoryBuf, TaskInfo, TaskResult)
       else
      		ec := TestTask(TmpDir, TmpDir + SolveExeFile, SubmitInfo.DOS, SubmitInfo.TimeMul, SubmitInfo.MemoryBuf, TaskInfo, TaskResult);
    		_submit := -1;
