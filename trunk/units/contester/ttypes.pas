@@ -97,8 +97,6 @@ TYPE
 // polia s status po result pishutsia SetSubmitResult
 	PSubmitInfo = ^TSubmitInfo;
 	TSubmitInfo = record
-                      isTaskSolved: boolean; //решена ли задача к настоящему моменту
-                      successfulAttemptNum: Integer; //номер успешной попытки
                       ID    : integer;     //ID посылки
                       user  : integer;     //ID пославшего
                       problem: String;

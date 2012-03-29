@@ -523,7 +523,6 @@ begin
   	if not ping then exit;
 
   	q := 	'SELECT S.SubmitID,S.UserID,S.ProblemID,S.ContestID,S.Attempt,S.SubmitTime,S.StatusID,L.Batch,L.TimeMul,L.MemoryBuf,T.testingId '+
-          //',(select min(attempt) from submit s2 where S2.ContestID=S.contestID and S2.problemID=S.problemID and S2.userID=S.userID and s2.statusid=0 and s2.resultid=0 and s2.submitid<>s.submitid) as `successfulattemptnum` ' +
           'FROM ' +
             '(testing T INNER JOIN (submit S INNER JOIN lang L ON S.LangID=L.LangID) ON T.submitId = S.SubmitId)' +
             'inner join cntest C on S.contestId=C.contestId ' +
@@ -551,8 +550,6 @@ begin
     		bat           := rowbuf[7];
         timemul       := StrToIntDef(rowbuf[8], 100);
         MemoryBuf     := StrToIntDef(rowbuf[9], 0);
-        //successfulAttemptNum := StrToIntDef(rowbuf[8], 0);
-        //isTaskSolved := successfulAttemptNum > 0;
             testingId := StrToIntDef(rowbuf[10], 0);
     		rowbuf := mysql_fetch_row(recbuf);
  		end;
@@ -691,8 +688,7 @@ begin
           			end;
       		case req of
         		rqClient : fld := 'task,stry,stime,ttime,status,point,result,inf,msg';
-        		rqTester : fld := 'S.UserID,S.ProblemID,S.ContestID,S.Attempt,S.SubmitTime,S.StatusID,L.Batch,L.DOS,L.TimeMul,L.MemoryBuf '+
-                              ',(select min(attempt) from submit s2 where S2.ContestID=S.contestID and S2.problemID=S.problemID and S2.userID=S.userID and s2.statusid=0 and s2.resultid=0 and s2.submitid<>s.submitid) as `successfulattemptnum` ';
+        		rqTester : fld := 'S.UserID,S.ProblemID,S.ContestID,S.Attempt,S.SubmitTime,S.StatusID,L.Batch,L.DOS,L.TimeMul,L.MemoryBuf ';
         		rqWaiter : fld := '';
       		end;
       		q := 	'SELECT ' + fld + ' FROM submit S INNER JOIN Lang L ON S.LangID=L.LangID' +
@@ -786,8 +782,6 @@ begin
         DOS           := StrToIntDef(rowbuf[7], 0) = 1;
         TimeMul       := StrToIntDef(rowbuf[8], 100);
         MemoryBuf     := StrToIntDef(rowbuf[9], 0);
-        successfulAttemptNum := strToIntDef(rowbuf[10], 0);
-        isTaskSolved := successfulAttemptNum > 0
       end;
       rqWaiter : ;
     end;
@@ -817,14 +811,6 @@ var
     values    : string;
     p1, p2    : string;
     t         : String;
-
-  function getIsTaskSolved: String;
-  begin
-    if TSubmitInfo(info).isTaskSolved then
-      result := '1'
-    else
-      result := '0'
-  end;
 
     function getTimePenaltyLocal: String;
     begin
@@ -908,7 +894,6 @@ begin
 //          append('inf', inttostr(result.inf));
           append('TotalTime', IntToStr(result.time));
           append('TotalMemory', IntToStr(result.mem));
-          append('isTaskSolved', getIsTaskSolved);
           append('penalty', getTimePenaltyLocal);
           ConvertStr(dbcp, cpMySQL, result.msg, t);
           append('Message', escape(t));
