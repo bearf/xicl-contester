@@ -567,7 +567,7 @@ begin
   mysql_free_result (recbuf);
 
   if result > 0 then begin
-      q := 'UPDATE testing SET started=NOW(), result="2", contesterId="' + MainConfig.ReadString('tsys', 'id', '1') + '" WHERE testingId="' + inttostr(testingId) + '"';
+      q := 'UPDATE testing SET started=NOW(), result="2", contesterId="' + MainConfig.ReadString('tsys', 'id', '1') + '" WHERE testingId="' + inttostr(testingId) + '" AND result="1" AND contesterId="0"';
       if not db_insert(q) or (0 = mysql_affected_rows(sock)) then begin
         setlength(submits, 0); result := 0;
       end;
