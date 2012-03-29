@@ -22,7 +22,6 @@ uses windows, SysUtils, tTypes, ttimes, inifiles, tLog, tFiles, tConfig, mycp, m
 
 	function GetSolve (SubmitID : integer; fname : string): boolean;
 
-function UpdateVolume(SubmitInfo: TSubmitInfo): Boolean;
 function UpdateMonitor(SubmitInfo: TSubmitInfo): boolean;
 function UpdateTesting(SubmitInfo: TSubmitInfo): Boolean;
 function isMonitorFrozen(SubmitInfo: TSubmitInfo): Boolean;
@@ -55,18 +54,6 @@ end;
 function UpdateTesting(SubmitInfo: TSubmitInfo): Boolean;
 begin
     result := db_update_testing(SubmitInfo);
-end;
-
-function UpdateVolume(SubmitInfo: TSubmitInfo): Boolean;
-var
-  return: Boolean;
-begin
-  with SubmitInfo do
-    return := db_update_volume(Contest,
-                               Problem,
-                               Result.result = 0);
-
-  Result := return
 end;
 
 function UpdateMonitor(SubmitInfo: TSubmitInfo): boolean;

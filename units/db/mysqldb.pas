@@ -50,10 +50,6 @@ function db_get_solve(SubmitID : integer; fname : string) : boolean;
 function db_check_update : boolean;
 function db_get_config(name: string):string;
 procedure db_update_monitor(user, contest, stry, solved, pts: integer; problem: String; stime: TDateTime);
-//изменяет параметры solved и attempt в contest.volume
-function  db_update_volume(contest: Integer;
-                           problem: String;
-                           solved:  Boolean): Boolean;
 function db_get_id(alias : String; var id: integer): boolean;
 procedure save_all_solves;
 function db_get_server_time: TDateTime;
