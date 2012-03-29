@@ -133,13 +133,10 @@ begin
             then logger.test.print('upload FAILED')
    		    else logger.test.print('upload OK');
 
-        //обновляем информацию в таблицах Volume и Monitor
-        UpdateVolume(SubmitInfo);
-
         SubmitInfo.testingId := testingId;
         UpdateTesting(SubmitInfo);
 
-        // эта строка - только ДЛЯ ОЧНОГО ТУРА!!!!!
+        //обновляем информацию в таблице Monitor
         if not isMonitorFrozen(SubmitInfo) then begin
             UpdateMonitor(SubmitInfo);
         end
