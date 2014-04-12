@@ -283,6 +283,7 @@ end;
 
 //подключается к серверу MySQL и выбирает БД
 function db_init : boolean;
+var q:string;
 begin
     updatetime := 0;
     sock := mysql_init(nil);
@@ -294,6 +295,9 @@ begin
         result := true;
     if mysql_select_db(sock, PChar(db)) <> 0 then
         db_error('Could not select database ' + db, true);
+
+    //q := 'set names cp1251';
+    //db_query(q);
 end;
 
 //отключается от сервера MySQL, очищает кэш

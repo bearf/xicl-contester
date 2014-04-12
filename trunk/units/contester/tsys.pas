@@ -85,6 +85,9 @@ function TestTest(const WorkDir, AppName: string; DosFlag: Boolean; const timeMu
     f:          TextFile;
     TotalTime,
     TotalMem:   Integer;
+    checkerName:String;
+    javaCheck:Boolean;
+    cmd:String;
 	begin
 		wd := WorkDir;
 		Result := _NO;
@@ -157,12 +160,19 @@ function TestTest(const WorkDir, AppName: string; DosFlag: Boolean; const timeMu
 
 		if Res = _NO then begin
 			//Download Checker
-			tmp := wd + CheckExeFile;
+      checkerName := CheckExeFile;
+			tmp := wd + checkerName;
+      javaCheck := false;
 			if not GetApp(TaskInfo.id, IntToStr(TaskInfo.ID)+'.exe', tmp) then begin
-				Result := _FL;
-				TestResult.Result := _FL;
-				TestResult.msg := 'cant download checker';
-				exit;
+        checkerName := 'Check.jar';
+        tmp := wd + checkerName;
+        javaCheck := true;
+        if not GetApp(TaskInfo.id, checkerName, tmp) then begin
+				  Result := _FL;
+				  TestResult.Result := _FL;
+				  TestResult.msg := 'cant download checker';
+				  exit;
+        end;
 			end;
 
  			//Download input files
@@ -184,12 +194,18 @@ function TestTest(const WorkDir, AppName: string; DosFlag: Boolean; const timeMu
 //			GetTestFiles(TaskInfo.id, test, TaskInfo.Ans, wd);
 
 
-			Res2 := RunApp(WorkDir,
-							WorkDir + CheckExeFile + ' ' +
+      if javaCheck then begin
+        cmd := 'java -Xmx256M -Xss64M -jar Check.jar ' + Inp + ' ' + Outp + ' rans.txt';
+      end else begin
+        cmd := WorkDir + checkerName + ' ' +
 							Inp + ' ' +
 							Outp + ' ' +
-							'rans.txt' + ' ' +
-							CheckResultFile,
+							'rans.txt' //+ ' ' +
+							//CheckResultFile
+              ;
+      end;
+			Res2 := RunApp(WorkDir,
+							cmd,
               False,
               False,
 							CB_RUN_TYPE_CHECKER);
@@ -214,7 +230,7 @@ function TestTest(const WorkDir, AppName: string; DosFlag: Boolean; const timeMu
 				TestResult.msg := 'invalid checker exit code';
 				exit;
 			end;
-			if not (FileExists(WorkDir + CheckResultFile) and (res in [_OK, _WA, _PE]) and AnalyseCheckOut) then
+			if not ({FileExists(WorkDir + CheckResultFile) and }(res in [_OK, _WA, _PE]){ and AnalyseCheckOut}) then
 				fatal('Testlib compatible checker? I think not.')
       else if (res in [_WA, _PE]) then begin
         TestResult.msg := 'res in [_WA, _PE]';
@@ -361,6 +377,10 @@ function TestSubmit(var SubmitInfo: TSubmitInfo):integer;
       	TaskResult: TTestResult;
       	TmpDir: String;
         TaskID: Integer;
+        f: TextFile;
+        i, j: integer;
+        fileName: String;
+        line: String;
   	begin
    		SubmitInfo.result.Result := _NO;
    		Result := _NO;
@@ -387,7 +407,25 @@ function TestSubmit(var SubmitInfo: TSubmitInfo):integer;
     		exit;
    		end;
 
-   		ec := CompileApp(TmpDir, SolveSrcFile, TmpDir, SolveExeFile, SubmitInfo.bat);
+      if (SubmitInfo.bat = 'java.bat') then begin
+        assignFile( f, tmpDir + solveSrcFile ); reset( f );
+        while not eof( f ) do begin
+          readln( f, line );
+          i := pos( 'class', line );
+          if (i > 0) then begin
+            i := i + 6;
+            j := i;
+            fileName := '';
+            while (j < length( line )+1) and (line[j] <> ' ') and (line[j] <> '{') do
+              inc( j );
+            fileName := copy( line, i, j-i );
+   		      ec := CompileApp(TmpDir, SolveSrcFile, TmpDir, fileName + '.java', fileName + '.class', SubmitInfo.bat);
+            break;
+          end;
+        end;
+        closeFile( f );
+      end else
+   		  ec := CompileApp(TmpDir, SolveSrcFile, TmpDir, SolveExeFile, SolveExeFile, SubmitInfo.bat);
 
    		if ec <> _OK then begin
     		    Result := ec;
@@ -412,7 +450,7 @@ function TestSubmit(var SubmitInfo: TSubmitInfo):integer;
    		_submit := SubmitInfo.id;
    		_submitinfo := @SubmitInfo;
       if (SubmitInfo.bat = 'java.bat') then
-     		ec := TestTask(TmpDir, 'java -cp . -Xmx256M -Xms256M -Xss256M -DONLINE_JUDGE=true -Duser.language=en -Duser.region=US -Duser.variant=US Solution', SubmitInfo.DOS, SubmitInfo.TimeMul, SubmitInfo.MemoryBuf, TaskInfo, TaskResult)
+     		ec := TestTask(TmpDir, 'java -cp . -Xmx512M -Xss128M -DONLINE_JUDGE=true -Duser.language=en -Duser.region=US -Duser.variant=US ' + fileName, SubmitInfo.DOS, SubmitInfo.TimeMul, SubmitInfo.MemoryBuf, TaskInfo, TaskResult)
       else
      		ec := TestTask(TmpDir, TmpDir + SolveExeFile, SubmitInfo.DOS, SubmitInfo.TimeMul, SubmitInfo.MemoryBuf, TaskInfo, TaskResult);
    		_submit := -1;

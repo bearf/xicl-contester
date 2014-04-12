@@ -3,7 +3,7 @@ object TesterMainForm: TTesterMainForm
   Top = 175
   AlphaBlendValue = 128
   BorderStyle = bsNone
-  Caption = ')'
+  Caption = 'qu'
   ClientHeight = 516
   ClientWidth = 652
   Color = clMaroon
