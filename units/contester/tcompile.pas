@@ -4,7 +4,7 @@ unit tCompile;
 interface
  	uses tTypes, tCallBack, SysUtils;
 
- 	function CompileApp(SrcDir, SrcName, OutDir, OutName: String; Bat: String): integer;
+ 	function CompileApp(SrcDir, SrcName, OutDir, OutName, checkName: String; Bat: String): integer;
  	//return value:
  	//_OK - ok
  	//_BR - отменено
@@ -20,7 +20,7 @@ uses
 
   Forms;
 
-function CompileApp(SrcDir, SrcName, OutDir, OutName: String; Bat: String): integer;
+function CompileApp(SrcDir, SrcName, OutDir, OutName, checkName: String; Bat: String): integer;
 var
   ec:       integer;
   workdir:  String;
@@ -43,7 +43,7 @@ begin
         case ec of
             _BR: CompileApp := _BR;
             _FL: CompileApp := _CE;
-        else if FileExists(OutDir + Outname) then CompileApp := _OK
+        else if FileExists(OutDir + checkName) then CompileApp := _OK
                                              else CompileApp := _CE;
         end;
     end;
