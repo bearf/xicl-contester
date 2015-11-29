@@ -56,7 +56,7 @@ object frConnect: TfrConnect
     Top = 16
     Width = 121
     Height = 21
-    TabOrder = 1
+    TabOrder = 0
     Text = 'localhost'
   end
   object edUser: TEdit
@@ -64,7 +64,7 @@ object frConnect: TfrConnect
     Top = 40
     Width = 121
     Height = 21
-    TabOrder = 2
+    TabOrder = 1
     Text = 'contest'
   end
   object edPassword: TEdit
@@ -73,7 +73,7 @@ object frConnect: TfrConnect
     Width = 121
     Height = 21
     PasswordChar = '*'
-    TabOrder = 0
+    TabOrder = 2
   end
   object edDataBase: TEdit
     Left = 88
@@ -81,7 +81,7 @@ object frConnect: TfrConnect
     Width = 121
     Height = 21
     TabOrder = 3
-    Text = 'contest'
+    Text = 'icl2015'
   end
   object btnOK: TButton
     Left = 56

@@ -32,7 +32,12 @@ begin
     PChar(userName),
     PChar(password),
     PChar(DBName),
-    0, nil, 0) <> nil
+    0, nil, 0) <> nil;
+
+  if result then begin
+    mySQLUpdate('set names cp1251');
+    mySQLUpdate('set character set cp1251');
+  end;
 end;
 
 function mySQLSelectDB(DBName: String): Boolean;
