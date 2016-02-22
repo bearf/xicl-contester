@@ -21,7 +21,7 @@ interface
 
 implementation
 
-	uses  tFiles, udb, tLog, tCompile;
+	uses  tFiles, udb, tLog, tCompile, Math;
 
 	const
 		CheckExeFile = '__check.exe';
@@ -302,9 +302,14 @@ function TestTask(const WorkDir, AppName: string; DosFlag, StdFlag: Boolean; con
 
    		  Res := TestTest(WorkDir, AppName, DosFlag, StdFlag, timeMul, memoryBound, TaskInfo, i, TestResult);
 
-        //в TaskResult копируются память и время последнего теста
-        TaskResult.time := TestResult.time;
-        TaskResult.mem  := TestResult.mem;
+        //в TaskResult максимальные время и память
+        if i = 1 then begin
+          TaskResult.time := TestResult.time;
+          TaskResult.mem  := TestResult.mem;
+        end else begin
+          TaskResult.time := max(TaskResult.time, TestResult.time);
+          TaskResult.mem  := max(TaskResult.mem, TestResult.mem);
+        end;
 
         TestResult.result := (TestResult.result mod 100) + i*100;
   		  rs := ResultToStr(TestResult.result);
