@@ -5,7 +5,7 @@ interface
 	uses runlib, sysutils, ttypes, ttimes, CP, tConfig, tCallBack;
 
  //result _FL - всё плохо или резалт теста
-	function TestTest(const WorkDir, AppName: string; DosFlag: Boolean; const timeMul, memoryBound: Integer; const TaskInfo: TTaskInfo; Test: integer; var TestResult: TTestResult): integer;
+	function TestTest(const WorkDir, AppName: string; DosFlag, StdFlag: Boolean; const timeMul, memoryBound: Integer; const TaskInfo: TTaskInfo; Test: integer; var TestResult: TTestResult): integer;
 
  // результат задачи
  //       _OK - полное решение
@@ -15,7 +15,7 @@ interface
  //       _BR - кто-то что-то брейкнул
  //       _FL - что-то неладно
 
-	function TestTask(const WorkDir, AppName: string; DosFlag: Boolean; const timeMul, memoryBound: Integer; const TaskInfo: TTaskInfo; var TaskResult: TTestResult): integer;
+	function TestTask(const WorkDir, AppName: string; DosFlag, StdFlag: Boolean; const timeMul, memoryBound: Integer; const TaskInfo: TTaskInfo; var TaskResult: TTestResult): integer;
 
 	function TestSubmit(var SubmitInfo: TSubmitInfo):integer;
 
@@ -35,7 +35,7 @@ implementation
 		_submitinfo: PSubmitInfo;
 
 
-function TestTest(const WorkDir, AppName: string; DosFlag: Boolean; const timeMul, memoryBound: Integer; const TaskInfo: TTaskInfo; Test: integer; var TestResult: TTestResult): integer;
+function TestTest(const WorkDir, AppName: string; DosFlag, StdFlag: Boolean; const timeMul, memoryBound: Integer; const TaskInfo: TTaskInfo; Test: integer; var TestResult: TTestResult): integer;
 	Var Res, Res2 : integer;
 		resc: integer;
 		desc, comm: string;
@@ -121,20 +121,12 @@ function TestTest(const WorkDir, AppName: string; DosFlag: Boolean; const timeMu
 		end;
 
 		//execute solution
-    if (TaskInfo.input='')or(TaskInfo.output='') then
-   		Res := RunAppLim(WorkDir, AppName,
-                       True,
-                       DosFlag,
-                       TaskInfo.TimeLimit*timeMul div 100,  // умножаем на коэффициент
-                       TaskInfo.MemoryLimit + memoryBound,  // прибавляем "лишнюю" память
-                       TotalTime, TotalMem)
-    else
-   		Res := RunAppLim(WorkDir, AppName,
-                       False,
-                       DosFlag,
-                       TaskInfo.TimeLimit*timeMul div 100,
-                       TaskInfo.MemoryLimit + memoryBound,
-                       TotalTime, TotalMem);
+ 		Res := RunAppLim(WorkDir, AppName,
+                     StdFlag,
+                     DosFlag,
+                     TaskInfo.TimeLimit*timeMul div 100,  // умножаем на коэффициент
+                     TaskInfo.MemoryLimit + memoryBound,  // прибавляем "лишнюю" память
+                     TotalTime, TotalMem);
 
     //копируем результаты работы в TestResult
     TestResult.time := TotalTime;
@@ -248,7 +240,7 @@ function TestTest(const WorkDir, AppName: string; DosFlag: Boolean; const timeMu
 		if (res = _OK) or ((res >= _PC) and (res <= _PC4)) then TestResult.Point := TaskInfo.Point[test];
 	end;
 
-function TestTask(const WorkDir, AppName: string; DosFlag: Boolean; const timeMul, memoryBound: Integer; const TaskInfo: TTaskInfo; var TaskResult: TTestResult): integer;
+function TestTask(const WorkDir, AppName: string; DosFlag, StdFlag: Boolean; const timeMul, memoryBound: Integer; const TaskInfo: TTaskInfo; var TaskResult: TTestResult): integer;
 	var     i: integer;
 		res: integer;
 		isObligate: boolean;
@@ -308,7 +300,7 @@ function TestTask(const WorkDir, AppName: string; DosFlag: Boolean; const timeMu
  		    if TaskInfo.flag[i] = 1 then
      			isObligate := true;
 
-   		  Res := TestTest(WorkDir, AppName, DosFlag, timeMul, memoryBound, TaskInfo, i, TestResult);
+   		  Res := TestTest(WorkDir, AppName, DosFlag, StdFlag, timeMul, memoryBound, TaskInfo, i, TestResult);
 
         //в TaskResult копируются память и время последнего теста
         TaskResult.time := TestResult.time;
@@ -381,6 +373,8 @@ function TestSubmit(var SubmitInfo: TSubmitInfo):integer;
         i, j: integer;
         fileName: String;
         line: String;
+        StdFlag: Boolean;
+        commandLine: String;
   	begin
    		SubmitInfo.result.Result := _NO;
    		Result := _NO;
@@ -449,10 +443,25 @@ function TestSubmit(var SubmitInfo: TSubmitInfo):integer;
 
    		_submit := SubmitInfo.id;
    		_submitinfo := @SubmitInfo;
-      if (SubmitInfo.bat = 'java.bat') then
-     		ec := TestTask(TmpDir, 'java -cp . -Xmx512M -Xss128M -DONLINE_JUDGE=true -Duser.language=en -Duser.region=US -Duser.variant=US ' + fileName, SubmitInfo.DOS, SubmitInfo.TimeMul, SubmitInfo.MemoryBuf, TaskInfo, TaskResult)
+
+      StdFlag := taskinfo.Input = '';
+
+      if (SubmitInfo.bat = 'py.bat') then begin
+        if StdFlag then
+          commandLine := getCompileDir() + 'runpy.bat ' + TmpDir + ' solve.py ' + cStdInput + ' ' + cStdOutput
+     		else
+          commandLine := 'python ' + TmpDir + 'solve.py';
+        StdFlag := False;
+      end else if (SubmitInfo.bat = 'java.bat') then
+        commandLine := 'java -cp . -Xmx512M -Xss128M -DONLINE_JUDGE=true -Duser.language=en -Duser.region=US -Duser.variant=US ' + fileName
       else
-     		ec := TestTask(TmpDir, TmpDir + SolveExeFile, SubmitInfo.DOS, SubmitInfo.TimeMul, SubmitInfo.MemoryBuf, TaskInfo, TaskResult);
+        commandLine := TmpDir + SolveExeFile;
+
+ 	  	ec := TestTask(TmpDir, commandLine, SubmitInfo.DOS,
+        StdFlag,
+        SubmitInfo.TimeMul, SubmitInfo.MemoryBuf,
+        TaskInfo, TaskResult);
+
    		_submit := -1;
    		_submitinfo := nil;
 

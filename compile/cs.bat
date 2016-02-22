@@ -1,0 +1,1 @@
+"c:\Program Files\Mono-2.0\bin\gmcs.bat" -define:ONLINE_JUDGE -o+ -out:%3%4 %1%2

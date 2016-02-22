@@ -289,7 +289,7 @@ DWORD main(int argc, char *argv[])
 
     App := AppName;
 
-    if DosFlag and StdFlag then begin
+    if StdFlag then begin
       App := App + ' ' +
              '<' + WorkDir + cStdInput + ' ' +
              '>' + WorkDir + cStdOutput + ' ';
@@ -358,11 +358,6 @@ DWORD main(int argc, char *argv[])
 			RunAppNT := _FL;
 			Exit;
 		End;
-
-    if StdFlag then begin
-      CloseHandle(hInputFile);
-      CloseHandle(hOutputFile)
-    end;
 
 		MC.cb := sizeof(MC);
 		PrTotalTime := 0;
@@ -433,6 +428,11 @@ DWORD main(int argc, char *argv[])
        or (rs <> _NO)}
       (rs <> _NO) then
 			TerminateProcess(PI.hProcess, 0);
+
+    if StdFlag then begin
+      CloseHandle(hInputFile);
+      CloseHandle(hOutputFile)
+    end;
 
     // Получить код завершения приложения
 		AllCB(CB_RUN_DONE, AppType, TotalTime, TotalMem);

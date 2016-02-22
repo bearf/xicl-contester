@@ -9,7 +9,20 @@ var
 	MainConfig: tinifile;
     MainReg: TRegistryINIFile;
 
+function getCompileDir(): String;
+
+
 implementation
+
+function getCompileDir(): String;
+var
+  workDir: String;
+begin
+  workdir := Application.ExeName;
+  workdir := ExtractFileDir(workdir);
+
+  result := MainConfig.ReadString('compile', 'compile_batch_dir', workdir + '\');
+end;
 
 initialization
     MainReg := TRegistryINIFile.Create('\Software\Contest');
