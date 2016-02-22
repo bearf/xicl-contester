@@ -694,7 +694,7 @@ begin
           			end;
       		case req of
         		rqClient : fld := 'task,stry,stime,ttime,status,point,result,inf,msg';
-        		rqTester : fld := 'S.UserID,S.ProblemID,S.ContestID,S.Attempt,S.SubmitTime,S.StatusID,L.Batch,L.DOS,L.TimeMul,L.MemoryBuf ';
+        		rqTester : fld := 'S.UserID,S.ProblemID,S.ContestID,S.Attempt,S.SubmitTime,S.StatusID,L.Batch,L.DOS,L.TimeMul,L.MemoryBuf,S.Detached ';
         		rqWaiter : fld := '';
       		end;
       		q := 	'SELECT ' + fld + ' FROM submit S INNER JOIN Lang L ON S.LangID=L.LangID' +
@@ -788,6 +788,7 @@ begin
         DOS           := StrToIntDef(rowbuf[7], 0) = 1;
         TimeMul       := StrToIntDef(rowbuf[8], 100);
         MemoryBuf     := StrToIntDef(rowbuf[9], 0);
+        Detached      := StrToIntDef(rowbuf[10], 0);
       end;
       rqWaiter : ;
     end;

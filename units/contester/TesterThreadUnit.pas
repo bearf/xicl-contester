@@ -137,7 +137,7 @@ begin
         UpdateTesting(SubmitInfo);
 
         //обновляем информацию в таблице Monitor
-        if not isMonitorFrozen(SubmitInfo) then begin
+        if not isMonitorFrozen(SubmitInfo) and (SubmitInfo.Detached=0) then begin
             UpdateMonitor(SubmitInfo);
         end
     end else begin

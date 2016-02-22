@@ -108,6 +108,7 @@ TYPE
                       bat:    String;
                       TimeMul: Integer;
                       MemoryBuf: Integer;
+                      Detached: Integer;
                       {-}
                       status: integer;     //статус посылки
                                              //см костанты SUBMIT_XXXX
